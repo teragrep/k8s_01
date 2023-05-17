@@ -56,5 +56,5 @@ jobs:
       - name: Attach rpm to release
         uses: softprops/action-gh-release@v1
         with:
-          files: rpm/target/rpm/com.teragrep-k8s_01/RPMS/noarch/com.teragrep-bos_01-*.noarch.rpm
+          files: rpm/target/rpm/com.teragrep-k8s_01/RPMS/noarch/com.teragrep-k8s_01-*.noarch.rpm
 
