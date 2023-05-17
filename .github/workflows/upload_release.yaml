@@ -51,7 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pack RPM
-        run: cd rpm/ && mvn --batch-mode -Drelease.version=${{ github.event.release.tag_name }} -s ${{ github.workspace }}/settings.xml -f rpm.pom.xml package
+        run: cd rpm/ && mvn --batch-mode -Drelease.version=${{ github.event.release.tag_name }} -f rpm.pom.xml package
 
       - name: Attach rpm to release
         uses: softprops/action-gh-release@v1
