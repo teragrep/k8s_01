@@ -1,6 +1,6 @@
 {
   "kubernetes": {
-    "logdir": "testlogs",
+    "logdir": "/var/log/containers",
     "url": "https://127.0.0.1:8443",
     "cacheExpireInterval": 900,
     "cacheMaxEntries": 4096,
