@@ -186,6 +186,7 @@
             <exclude>**/log4j2.xml</exclude>
             <!-- docker stuff -->
             <exclude>docker/*</exclude>
+            <exclude>Dockerfile</exclude>
             <!-- internal -->
             <exclude>Jenkinsfile.container</exclude>
             <exclude>Jenkinsfile.build</exclude>
