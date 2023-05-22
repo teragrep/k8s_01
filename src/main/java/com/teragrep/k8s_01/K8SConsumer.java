@@ -61,29 +61,73 @@ public class K8SConsumer implements Consumer<FileRecord> {
     public void accept(FileRecord record) {
 
             UUID uuid = java.util.UUID.randomUUID();
-            LOGGER.debug("[" + uuid + "] Got a new record from file: " + record.getPath() + "/" + record.getFilename());
-            LOGGER.debug("[" + uuid + "] Reading " + record.getRecord().length + " starting from " + record.getStartOffset() + ", file progress " + (int) (record.getStartOffset()+record.getRecord().length) + "/" + record.getEndOffset());
+            LOGGER.debug(
+                    "[{}] Got a new record from file: {}/{}",
+                    uuid,
+                    record.getPath(),
+                    record.getFilename()
+            );
+            LOGGER.debug(
+                    "[{}] Reading {} starting from {}, file progress {}/{}",
+                    uuid,
+                    record.getRecord().length,
+                    record.getStartOffset(),
+                    (int) (record.getStartOffset()+record.getRecord().length),
+                    record.getEndOffset()
+            );
             KubernetesLogFilePOJO log;
             try {
                 // We want to read the kubernetes log event into a POJO, mostly for the timestamp
                 log = gson.fromJson(new String(record.getRecord()), KubernetesLogFilePOJO.class);
             } catch (JsonSyntaxException e) {
-                LOGGER.error("[" + uuid + "] Can't continue as syntax for the event was invalid: " + e);
-                LOGGER.debug("[" + uuid + "] Invalid syntax message: " + new String(record.getRecord()));
+                LOGGER.error(
+                        "[{}] Can't continue as syntax for the event was invalid:",
+                        uuid,
+                        e
+                );
+                LOGGER.debug(
+                        "[{}] Invalid syntax message: {}",
+                        uuid,
+                        new String(record.getRecord())
+                );
                 throw new RuntimeException(e);
             } catch (JsonParseException e) {
-                LOGGER.error("[" + uuid + "] Can't parse log event: " + e);
-                LOGGER.debug("[" + uuid + "] Invalid json message: " + new String(record.getRecord()));
+                LOGGER.error(
+                        "[{}] Can't parse log event:",
+                        uuid,
+                        e
+                );
+                LOGGER.debug(
+                        "[{}] Invalid json message: {}",
+                        uuid,
+                        new String(record.getRecord())
+                );
                 throw new RuntimeException(e);
             }
 
             // Log is in invalid format if timestamp is not available
             if(log == null || log.getTimestamp() == null) {
-                LOGGER.debug("[" + uuid + "] Can't parse this properly: " + new String(record.getRecord()));
-                throw new RuntimeException("[" + uuid + "] Can't parse record properly from " + record.getPath() + "/" + record.getFilename() + " at " + record.getStartOffset());
+                LOGGER.debug(
+                        "[{}] Can't parse this properly: {}",
+                        uuid,
+                        new String(record.getRecord())
+                );
+                throw new RuntimeException(
+                    String.format(
+                        "[%s] Can't parse record properly from %s/%s at %s",
+                        uuid,
+                        record.getPath(),
+                        record.getFilename(),
+                        record.getStartOffset()
+                    )
+                );
             }
 
-            LOGGER.trace("[" + uuid + "] Raw record value: " + log);
+            LOGGER.trace(
+                    "[{}] Raw record value: {}",
+                    uuid,
+                    log
+            );
 
             String namespace = ContainerInfo.getNamespace(record.getFilename());
             String podname = ContainerInfo.getPodname(record.getFilename());
@@ -102,7 +146,10 @@ public class K8SConsumer implements Consumer<FileRecord> {
             String hostname;
             String appname;
             if(podMetadataContainer.getLabels() == null) {
-                LOGGER.warn("[" + uuid + "] Can't resolve metadata and/or labels, using fallback values for hostname and appname");
+                LOGGER.warn(
+                        "[{}] Can't resolve metadata and/or labels, using fallback values for hostname and appname",
+                        uuid
+                );
                 hostname = appConfig.getKubernetes().getLabels().getHostname().getFallback();
                 appname = appConfig.getKubernetes().getLabels().getAppname().getFallback();
             }
@@ -116,14 +163,30 @@ public class K8SConsumer implements Consumer<FileRecord> {
                         appConfig.getKubernetes().getLabels().getAppname().getFallback()
                 );
             }
-            LOGGER.debug("[" + uuid + "] Resolved message to be " + appname + "@" + hostname + " from " + namespace + "/" + podname + " generated at " + log.getTime());
+            LOGGER.debug(
+                    "[{}] Resolved message to be {}@{} from {}/{} generated at {}",
+                    uuid,
+                    appname,
+                    hostname,
+                    namespace,
+                    podname,
+                    log.getTime()
+            );
 
             // Craft syslog message and structured-data
             SDElement SDMetadata = new SDElement("kubernetesmeta@48577")
                     .addSDParam("kubernetes", kubernetesMetadata.toString())
                     .addSDParam("docker", dockerMetadata.toString());
-            LOGGER.trace("[" + uuid + "] Kubernetes metadata: " + kubernetesMetadata);
-            LOGGER.trace("[" + uuid + "] Docker metadata: " + dockerMetadata);
+            LOGGER.trace(
+                    "[{}] Kubernetes metadata: {}",
+                    uuid,
+                    kubernetesMetadata
+            );
+            LOGGER.trace(
+                    "[{}] Docker metadata: {}",
+                    uuid,
+                    dockerMetadata
+            );
             SyslogMessage syslog = new SyslogMessage()
                     .withTimestamp(log.getTimestamp())
                     .withSeverity(Severity.WARNING)
