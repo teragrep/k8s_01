@@ -1,6 +1,6 @@
 # Usage
 
-Run `run.sh` to start example cluster. Running the cluster requires `ghcr.io` image pulling secret to exist if image `ghcr.io/teragrep/k8s_01/app:latest` is not available locally. 
+Run `run.sh` to start example cluster. Running the cluster requires `ghcr.io` image pulling secret to exist if image `ghcr.io/teragrep/k8s_01/app:latest` or `ghcr.io/teragrep/rlp_07/app:latest` is not available locally.
 
 Run `stop.sh` to stop the example cluster.
 

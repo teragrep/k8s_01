@@ -17,6 +17,3 @@ configMapGenerator:
     files:
       - config/config.json
       - config/log4j2.xml
-  - name: receiver-config
-    files:
-      - config/receiver.conf

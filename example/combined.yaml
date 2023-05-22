@@ -101,25 +101,6 @@ metadata:
   name: app-config-ddd6gmh954
 ---
 apiVersion: v1
-data:
-  receiver.conf: |
-    global(
-        workDirectory="/tmp"
-        maxMessageSize="256k"
-        shutdown.enable.ctlc="on"
-    )
-    main_queue(queue.type="Direct")
-    module(load="imrelp")
-    module(load="omstdout")
-    input(type="imrelp" port="1601" ruleset="print")
-    ruleset(name="print") {
-        action(type="omstdout")
-    }
-kind: ConfigMap
-metadata:
-  name: receiver-config-85899568kt
----
-apiVersion: v1
 kind: Secret
 metadata:
   annotations:
@@ -269,30 +250,19 @@ metadata:
   namespace: default
 spec:
   containers:
-  - args:
-    - -c
-    - yum install -y rsyslog rsyslog-relp && exec rsyslogd -f /config/receiver.conf
-      -iNONE -n;
-    command:
-    - /usr/bin/bash
-    image: rockylinux:8
+  - image: ghcr.io/teragrep/rlp_07/app:latest
     imagePullPolicy: IfNotPresent
     name: first-pod
     ports:
     - containerPort: 1601
       name: relp
       protocol: TCP
-    volumeMounts:
-    - mountPath: /config/
-      name: receiver-config
   dnsPolicy: ClusterFirst
   hostname: receiver
+  imagePullSecrets:
+  - name: ghcr.io
   restartPolicy: Always
   terminationGracePeriodSeconds: 0
-  volumes:
-  - configMap:
-      name: receiver-config-85899568kt
-    name: receiver-config
 ---
 apiVersion: v1
 kind: Pod

@@ -13,17 +13,9 @@
     "hostname": "receiver",
     "dnsPolicy": "ClusterFirst",
     "terminationGracePeriodSeconds": 0,
-    "volumes": [
-      {
-        "name": "receiver-config",
-        "configMap": {
-          "name": "receiver-config"
-        }
-      }
-    ],
     "containers": [
       {
-        "image": "rockylinux:8",
+        "image": "ghcr.io/teragrep/rlp_07/app:latest",
         "imagePullPolicy": "IfNotPresent",
         "name": "first-pod",
         "ports": [
@@ -32,20 +24,12 @@
             "name": "relp",
             "containerPort": 1601
           }
-        ],
-        "volumeMounts": [
-          {
-            "mountPath": "/config/",
-            "name": "receiver-config"
-          }
-        ],
-        "command": [
-          "/usr/bin/bash"
-        ],
-        "args": [
-          "-c",
-          "yum install -y rsyslog rsyslog-relp && exec rsyslogd -f /config/receiver.conf -iNONE -n;"
         ]
+      }
+    ],
+    "imagePullSecrets": [
+      {
+        "name": "ghcr.io"
       }
     ],
     "restartPolicy": "Always"
