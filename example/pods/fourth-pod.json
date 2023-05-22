@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "fourth-pod",
+    "namespace": "default",
+    "labels": {
+      "host": "fourth-pod-hostname",
+      "app": "fourth-pod-app",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "fourth-pod",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 0,
+    "containers": [
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "fourth-pod",
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "echo 'I am fourth pod. I should not be read.'; while true; do echo 'Why are you reading me?'; sleep 5; done; sleep inf"
+        ]
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}

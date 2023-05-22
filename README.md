@@ -298,4 +298,4 @@ And start the k8s_01 image with for example the following arguments. It uses `KU
 
 # Example test cluster usage
 
-Read example project in `/testcluster` directory for example usage
+Read example project in `/example` directory for example usage

@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "name": "second-pod",
+    "namespace": "default",
+    "labels": {
+      "host": "second-pod-hostname",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "second-pod",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 0,
+    "containers": [
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "second-pod",
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "echo 'I am second pod'; while true; do echo \"I think you are thinking of number... $RANDOM!\"; sleep 5; done; sleep inf;"
+        ]
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}

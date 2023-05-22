@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "name": "receiver",
+    "namespace": "default",
+    "labels": {
+      "app": "receiver",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "receiver",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 0,
+    "containers": [
+      {
+        "image": "ghcr.io/teragrep/rlp_07/app:latest",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "first-pod",
+        "ports": [
+          {
+            "protocol": "TCP",
+            "name": "relp",
+            "containerPort": 1601
+          }
+        ]
+      }
+    ],
+    "imagePullSecrets": [
+      {
+        "name": "ghcr.io"
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}
