@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - services/relp-service.json
+  - services/serviceaccount.json
+  - services/role.json
+  - services/rolebinding.json
+  - services/secret.json
+  - pods/first-pod.json
+  - pods/second-pod.json
+  - pods/third-pod.json
+  - pods/fourth-pod.json
+  - pods/k8s_01.json
+  - pods/receiver.json
+configMapGenerator:
+  - name: app-config
+    files:
+      - config/config.json
+      - config/log4j2.xml
+  - name: receiver-config
+    files:
+      - config/receiver.conf

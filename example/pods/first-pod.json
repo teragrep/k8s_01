@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "name": "first-pod",
+    "namespace": "default",
+    "labels": {
+      "app": "first-pod-hostname",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "first-pod",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 0,
+    "containers": [
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "first-pod",
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "echo 'I am first pod'; echo 'This is an example log message'; sleep inf;"
+        ]
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}

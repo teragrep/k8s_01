@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "name": "receiver",
+    "namespace": "default",
+    "labels": {
+      "app": "receiver",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "receiver",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 0,
+    "volumes": [
+      {
+        "name": "receiver-config",
+        "configMap": {
+          "name": "receiver-config"
+        }
+      }
+    ],
+    "containers": [
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "first-pod",
+        "ports": [
+          {
+            "protocol": "TCP",
+            "name": "relp",
+            "containerPort": 1601
+          }
+        ],
+        "volumeMounts": [
+          {
+            "mountPath": "/config/",
+            "name": "receiver-config"
+          }
+        ],
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "yum install -y rsyslog rsyslog-relp && exec rsyslogd -f /config/receiver.conf -iNONE -n;"
+        ]
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}

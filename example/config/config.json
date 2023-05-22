@@ -1,0 +1,35 @@
+{
+  "kubernetes": {
+    "logdir": "/var/log/containers",
+    "url": "https://127.0.0.1:8443",
+    "cacheExpireInterval": 300,
+    "cacheMaxEntries": 4096,
+    "labels": {
+      "hostname": {
+        "prefix": "prefix-",
+        "label": "host",
+        "fallback": "fallback-hostname"
+      },
+      "appname": {
+        "prefix": "prefix-",
+        "label": "app",
+        "fallback": "fallback-appname"
+      }
+    },
+    "logfiles": [
+      "first-pod_default_.*",
+      "second-pod_default_.*",
+      "third-pod_default_third-pod-one-.*",
+      "third-pod_default_third-pod-two-.*"
+    ]
+  },
+  "relp": {
+    "target": "receiver.receiver.default",
+    "port": 1601,
+    "connectionTimeout": 5000,
+    "readTimeout": 5000,
+    "writeTimeout": 5000,
+    "reconnectInterval": 5000,
+    "outputThreads": 5
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "metadata": {
+    "name": "third-pod",
+    "namespace": "default",
+    "labels": {
+      "host": "third-pod-hostname",
+      "app": "third-pod-app",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "third-pod",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 0,
+    "containers": [
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "third-pod-one",
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "echo 'I am third pod #1'; echo 'I will not print more logs'; sleep inf"
+        ]
+      },
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "third-pod-two",
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "echo 'I am third pod #2'; while true; do echo \"Todays lucky number is $RANDOM and we keep on writing messages, slowly.\"; sleep 5; done; sleep inf"
+        ]
+      },
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "third-pod-three",
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "echo 'I am third pod #3. I should not be read'; sleep inf"
+        ]
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}
