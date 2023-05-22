@@ -64,6 +64,7 @@ public class KubernetesLogReader {
             return;
         }
         KubernetesCachingAPIClient cacheClient = new KubernetesCachingAPIClient(appConfig.getKubernetes());
+        PrometheusMetrics prometheusMetrics = new PrometheusMetrics(appConfig.getMetrics().getPort());
 
         // Pool of Relp output threads to be shared by every consumer
         BlockingQueue<RelpOutput> relpOutputPool = new LinkedBlockingDeque<>(appConfig.getRelp().getOutputThreads());
@@ -171,5 +172,6 @@ public class KubernetesLogReader {
                 throw new RuntimeException(e);
             }
         }
+        prometheusMetrics.close();
     }
 }

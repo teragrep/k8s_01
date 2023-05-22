@@ -17,6 +17,8 @@
     <revision>0.0.1</revision>
     <changelist>-SNAPSHOT</changelist>
     <sha1/>
+    <prometheus-simpleclient.version>0.16.0</prometheus-simpleclient.version>
+    <prometheus-jettyservlet.version>9.4.51.v20230217</prometheus-jettyservlet.version>
   </properties>
   <licenses>
     <license>
@@ -128,6 +130,34 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>2.0.7</version>
+    </dependency>
+
+    <!-- prometheus metrics endpoint -->
+    <dependency>
+      <groupId>io.prometheus</groupId>
+      <artifactId>simpleclient</artifactId>
+      <version>${prometheus-simpleclient.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.prometheus</groupId>
+      <artifactId>simpleclient_dropwizard</artifactId>
+      <version>${prometheus-simpleclient.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.prometheus</groupId>
+      <artifactId>simpleclient_servlet</artifactId>
+      <version>${prometheus-simpleclient.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.prometheus</groupId>
+      <artifactId>simpleclient_hotspot</artifactId>
+      <version>${prometheus-simpleclient.version}</version>
+    </dependency>
+    <!-- for exporting prometheus -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${prometheus-jettyservlet.version}</version>
     </dependency>
 
     <!-- Maven stuff -->

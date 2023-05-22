@@ -1,4 +1,5 @@
 target/**
+rpm/target/**
 .idea/**
 dependency-reduced-pom.xml
 var/
