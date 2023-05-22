@@ -81,9 +81,9 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 log = gson.fromJson(new String(record.getRecord()), KubernetesLogFilePOJO.class);
             } catch (JsonSyntaxException e) {
                 LOGGER.error(
-                        "[{}] Can't continue as syntax for the event was invalid: {}",
+                        "[{}] Can't continue as syntax for the event was invalid:",
                         uuid,
-                        e.toString()
+                        e
                 );
                 LOGGER.debug(
                         "[{}] Invalid syntax message: {}",
@@ -93,9 +93,9 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 throw new RuntimeException(e);
             } catch (JsonParseException e) {
                 LOGGER.error(
-                        "[{}] Can't parse log event: {}",
+                        "[{}] Can't parse log event:",
                         uuid,
-                        e.toString()
+                        e
                 );
                 LOGGER.debug(
                         "[{}] Invalid json message: {}",
