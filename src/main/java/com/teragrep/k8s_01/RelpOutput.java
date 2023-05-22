@@ -37,8 +37,16 @@ public class RelpOutput {
     RelpOutput(AppConfigRelp appConfigRelp, int threadId) {
         relpConfig = appConfigRelp;
         id = threadId;
-        LOGGER.debug("[#" + getId() + "] Started Relp thread #" + getId());
-        LOGGER.trace("[#" + getId() + "] Received Relp config: " + relpConfig);
+        LOGGER.debug(
+                "[#{}] Started Relp thread #{}",
+                getId(),
+                getId()
+        );
+        LOGGER.trace(
+                "[#{}] Received Relp config: {}",
+                getId(),
+                relpConfig
+        );
         relpConnection = new RelpConnection();
         relpConnection.setConnectionTimeout(relpConfig.getConnectionTimeout());
         relpConnection.setReadTimeout(relpConfig.getReadTimeout());
@@ -50,14 +58,27 @@ public class RelpOutput {
         boolean connected = false;
         while (!connected) {
             try {
-                LOGGER.debug("[#" + getId() + "] Connecting to " + relpConfig.getTarget() + ":" + relpConfig.getPort());
+                LOGGER.debug(
+                        "[#{}] Connecting to {}:{}",
+                        getId(),
+                        relpConfig.getTarget(),
+                        relpConfig.getPort()
+                );
                 connected = relpConnection.connect(relpConfig.getTarget(), relpConfig.getPort());
             } catch (IOException | TimeoutException e) {
-                LOGGER.error("[#" + getId() + "] Can't connect to Relp server: " + e);
+                LOGGER.error(
+                        "[#{}] Can't connect to Relp server:",
+                        getId(),
+                        e
+                );
             }
             if (!connected) {
                 try {
-                    LOGGER.info("[#" + getId() + "] Attempting to reconnect in " + relpConfig.getReconnectInterval() + "ms.");
+                    LOGGER.info(
+                            "[#{}] Attempting to reconnect in {}ms.",
+                            getId(),
+                            relpConfig.getReconnectInterval()
+                    );
                     Thread.sleep(relpConfig.getReconnectInterval());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -67,33 +88,58 @@ public class RelpOutput {
     }
 
     public void disconnect() {
-        LOGGER.debug("[#" + getId() + "] Disconnecting");
+        LOGGER.debug(
+                "[#{}] Disconnecting",
+                getId()
+        );
         try {
             relpConnection.disconnect();
         } catch (IOException | TimeoutException e) {
-            LOGGER.debug("[#" + getId() + "] Had to teardown connection");
+            LOGGER.debug(
+                    "[#{}] Had to teardown connection",
+                    getId()
+            );
             relpConnection.tearDown();
             throw new RuntimeException(e);
         }
     }
 
     public void send(SyslogMessage syslogMessage) {
-        LOGGER.debug("[#" + getId() + "] Got a new message from " + syslogMessage.getAppName() + "@" + syslogMessage.getHostname());
-        LOGGER.trace("[#" + getId() + "] Sending message: " + syslogMessage.toRfc5424SyslogMessage());
+        LOGGER.debug(
+                "[#{}] Got a new message from {}@{}",
+                getId(),
+                syslogMessage.getAppName(),
+                syslogMessage.getHostname()
+        );
+        LOGGER.trace(
+                "[#{}] Sending message: {}",
+                getId(),
+                syslogMessage.toRfc5424SyslogMessage()
+        );
         RelpBatch batch = new RelpBatch();
         batch.insert(syslogMessage.toRfc5424SyslogMessage().getBytes(StandardCharsets.UTF_8));
 
         boolean allSent = false;
         while (!allSent) {
             try {
-                LOGGER.trace("[#" + getId() + "] Committing batch");
+                LOGGER.trace(
+                        "[#{}] Committing batch",
+                        getId()
+                );
                 relpConnection.commit(batch);
             } catch (IllegalStateException | IOException | java.util.concurrent.TimeoutException e) {
-                LOGGER.error(e.toString());
+                LOGGER.error(
+                        "[#{}] Failed to send messages:",
+                        getId(),
+                        e
+                );
             }
             // Check if everything has been sent, retry and reconnect if not.
             if (!batch.verifyTransactionAll()) {
-                LOGGER.debug("[#" + getId() + "] Failed to verifyTransactionAll(), retrying");
+                LOGGER.debug(
+                        "[#{}] Failed to verifyTransactionAll(), retrying",
+                        getId()
+                );
                 batch.retryAllFailed();
                 relpConnection.tearDown();
                 connect();

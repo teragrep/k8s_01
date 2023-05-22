@@ -55,25 +55,42 @@ public class KubernetesLogReader {
             appConfig = gson.fromJson(new FileReader("etc/config.json"), AppConfig.class);
         }
         catch (FileNotFoundException e) {
-            LOGGER.error("Can't find config 'etc/config.json': " + e);
+            LOGGER.error(
+                    "Can't find config 'etc/config.json':",
+                    e
+            );
             return;
         }
         catch (JsonParseException e) {
-            LOGGER.error("Can't parse config 'etc/config.json': " + e);
+            LOGGER.error(
+                    "Can't parse config 'etc/config.json':",
+                    e
+            );
             return;
         }
         catch (Exception e) {
-            LOGGER.error("Unknown exception while handling config: " + e);
+            LOGGER.error(
+                    "Unknown exception while handling config:",
+                    e
+            );
             return;
         }
         KubernetesCachingAPIClient cacheClient = new KubernetesCachingAPIClient(appConfig.getKubernetes());
 
         // Pool of Relp output threads to be shared by every consumer
         BlockingQueue<RelpOutput> relpOutputPool = new LinkedBlockingDeque<>(appConfig.getRelp().getOutputThreads());
-        LOGGER.info("Starting " + appConfig.getRelp().getOutputThreads() + " Relp threads towards " + appConfig.getRelp().getTarget() + ":" + appConfig.getRelp().getPort());
+        LOGGER.info(
+                "Starting {} Relp threads towards {}:{}",
+                appConfig.getRelp().getOutputThreads(),
+                appConfig.getRelp().getTarget(),
+                appConfig.getRelp().getPort()
+        );
         for(int i=1; i <= appConfig.getRelp().getOutputThreads(); i++) {
             try {
-                LOGGER.debug("Adding RelpOutput thread #" + i);
+                LOGGER.debug(
+                        "Adding RelpOutput thread #{}",
+                        i
+                );
                 relpOutputPool.put(new RelpOutput(appConfig.getRelp(), i));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -84,7 +101,11 @@ public class KubernetesLogReader {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down.");
             for(int i=1; i <= appConfig.getRelp().getOutputThreads(); i++) {
-                LOGGER.info("Disconnecting relp thread #" + i + "/" + appConfig.getRelp().getOutputThreads());
+                LOGGER.info(
+                        "Disconnecting relp thread #{}/{}",
+                        i,
+                        appConfig.getRelp().getOutputThreads()
+                );
                 RelpOutput output;
                 try {
                     output = relpOutputPool.take();
@@ -99,18 +120,29 @@ public class KubernetesLogReader {
         K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool);
 
         String[] logfiles = appConfig.getKubernetes().getLogfiles();
-        LOGGER.debug("Monitored logfiles: " + Arrays.toString(logfiles));
+        LOGGER.debug(
+                "Monitored logfiles: {}",
+                Arrays.toString(logfiles)
+        );
         List<Thread> threads = new ArrayList<>();
-        LOGGER.debug("Using " + System.getProperty("user.dir") + "/var as statestore");
+        String statesStore = System.getProperty("user.dir") + "/var";
+        LOGGER.debug(
+                "Using {} as statestore",
+                statesStore
+        );
         // FIXME: VERIFY: SFR is not in try-with-resources block as it will have weird behaviour with threads.
         StatefulFileReader statefulFileReader = new StatefulFileReader(
-            Paths.get(System.getProperty("user.dir") + "/var"),
+            Paths.get(statesStore),
             consumerSupplier
         );
         // Start a new thread for all logfile watchers
         for (String logfile : logfiles) {
             Thread thread = new Thread(() -> {
-                LOGGER.debug("Starting new DirectoryEventWatcher thread on directory '" + appConfig.getKubernetes().getLogdir() + "' with pattern '" + logfile + "'");
+                LOGGER.debug(
+                        "Starting new DirectoryEventWatcher thread on directory '{}' with pattern '{}'",
+                        appConfig.getKubernetes().getLogdir(),
+                        logfile
+                );
                 try {
                     DirectoryEventWatcher dew = new DirectoryEventWatcher(
                             Paths.get(appConfig.getKubernetes().getLogdir()),
@@ -132,11 +164,20 @@ public class KubernetesLogReader {
 
         // FIXME: Is this necessary
         for (Thread thread : threads) {
-            LOGGER.trace("Waiting for thread " + thread.getName() + "#" + thread.getId() + " to finish");
+            LOGGER.trace(
+                    "Waiting for thread {}#{} to finish",
+                    thread.getName(),
+                    thread.getId()
+            );
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                LOGGER.error("Failed to stop thread " + thread.getName() + "#" + thread.getId() + ": " + e);
+                LOGGER.error(
+                        "Failed to stop thread {}#{}:",
+                        thread.getName(),
+                        thread.getId(),
+                        e
+                );
                 throw new RuntimeException(e);
             }
         }
