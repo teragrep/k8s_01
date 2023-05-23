@@ -17,6 +17,11 @@
 
 package com.teragrep.k8s_01;
 
+import com.codahale.metrics.*;
+import com.codahale.metrics.jmx.JmxReporter;
+import com.codahale.metrics.jvm.*;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.dropwizard.DropwizardExports;
 import io.prometheus.client.exporter.MetricsServlet;
 import io.prometheus.client.hotspot.DefaultExports;
 import org.eclipse.jetty.server.Server;
@@ -24,6 +29,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 public class PrometheusMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusMetrics.class);
@@ -39,6 +46,7 @@ public class PrometheusMetrics {
         MetricsServlet metricsServlet = new MetricsServlet();
         ServletHolder servletHolder = new ServletHolder(metricsServlet);
         context.addServlet(servletHolder, "/metrics");
+        setupDropWizard();
         // Add metrics about CPU, JVM memory etc.
         DefaultExports.initialize();
         // Start the webserver.
@@ -47,6 +55,33 @@ public class PrometheusMetrics {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    static void setupDropWizard() {
+        MetricRegistry metricRegistry = new MetricRegistry();
+
+        // Totals
+        metricRegistry.register(name("total", "reconnects"), new Counter());
+        metricRegistry.register(name("total", "connections"), new Counter());
+
+        // Throughput meters
+        metricRegistry.register(name("throughput", "bytes"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("throughput", "records"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("throughput", "errors"), new Meter(new SlidingTimeWindowMovingAverages()));
+
+        // Misc
+        metricRegistry.register(name("jvm", "vm"), new JvmAttributeGaugeSet());
+        metricRegistry.register(name("jvm", "memory"), new MemoryUsageGaugeSet());
+        metricRegistry.register(name("jvm", "threads"), new ThreadStatesGaugeSet());
+        metricRegistry.register(name("jvm", "gc"), new GarbageCollectorMetricSet());
+        SharedMetricRegistries.add("default", metricRegistry);
+
+        // Add to Prometheus metrics
+        CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry));
+
+        // Enable JMX listener
+        JmxReporter jmxReporter = JmxReporter.forRegistry(metricRegistry).build();
+        jmxReporter.start();
     }
 
     public void close() {

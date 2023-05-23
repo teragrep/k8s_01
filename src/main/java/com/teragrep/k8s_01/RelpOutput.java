@@ -18,6 +18,7 @@
 package com.teragrep.k8s_01;
 
 import com.cloudbees.syslog.SyslogMessage;
+import com.codahale.metrics.*;
 import com.teragrep.k8s_01.config.AppConfigRelp;
 import com.teragrep.rlp_01.RelpBatch;
 import com.teragrep.rlp_01.RelpConnection;
@@ -28,12 +29,18 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 public class RelpOutput {
     private static final Logger LOGGER = LoggerFactory.getLogger(RelpOutput.class);
     private final RelpConnection relpConnection;
     private final AppConfigRelp relpConfig;
     private final int id;
-
+    Counter totalReconnects;
+    Counter totalConnections;
+    Meter throughputBytes;
+    Meter throughputRecords;
+    Meter throughputErrors;
     RelpOutput(AppConfigRelp appConfigRelp, int threadId) {
         relpConfig = appConfigRelp;
         id = threadId;
@@ -55,6 +62,7 @@ public class RelpOutput {
         relpConnection.setConnectionTimeout(relpConfig.getConnectionTimeout());
         relpConnection.setReadTimeout(relpConfig.getReadTimeout());
         relpConnection.setWriteTimeout(relpConfig.getWriteTimeout());
+        loadMetrics();
         connect();
     }
 
@@ -71,14 +79,18 @@ public class RelpOutput {
                     );
                 }
                 connected = relpConnection.connect(relpConfig.getTarget(), relpConfig.getPort());
+                totalConnections.inc();
             } catch (IOException | TimeoutException e) {
                 LOGGER.error(
                         "[#{}] Can't connect to Relp server:",
                         getId(),
                         e
                 );
+                throughputErrors.mark();
+                totalConnections.dec();
             }
             if (!connected) {
+                totalReconnects.inc();
                 try {
                     LOGGER.info(
                             "[#{}] Attempting to reconnect in {}ms.",
@@ -88,6 +100,7 @@ public class RelpOutput {
                     Thread.sleep(relpConfig.getReconnectInterval());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    throughputErrors.mark();
                 }
             }
         }
@@ -99,6 +112,7 @@ public class RelpOutput {
                 getId()
         );
         try {
+            totalConnections.dec();
             relpConnection.disconnect();
         } catch (IOException | TimeoutException e) {
             LOGGER.debug(
@@ -106,6 +120,7 @@ public class RelpOutput {
                     getId()
             );
             relpConnection.tearDown();
+            throughputErrors.mark();
             throw new RuntimeException(e);
         }
     }
@@ -145,6 +160,7 @@ public class RelpOutput {
                         getId(),
                         e
                 );
+                throughputErrors.mark();
             }
             // Check if everything has been sent, retry and reconnect if not.
             if (!batch.verifyTransactionAll()) {
@@ -154,14 +170,30 @@ public class RelpOutput {
                 );
                 batch.retryAllFailed();
                 relpConnection.tearDown();
+                totalConnections.dec();
                 connect();
             } else {
                 allSent = true;
+                throughputBytes.mark(syslogMessage.toRfc5424SyslogMessage().getBytes(StandardCharsets.UTF_8).length);
+                throughputRecords.mark();
             }
         }
     }
 
     public int getId() {
         return id;
+    }
+
+    private void loadMetrics() {
+        // All registered through PrometheusMetrics
+        MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate("default");
+        // Throughput
+        throughputBytes = metricRegistry.meter(name("throughput", "bytes"));
+        throughputRecords = metricRegistry.meter(name("throughput", "records"));
+        throughputErrors = metricRegistry.meter(name("throughput", "errors"));
+
+        // Totals
+        totalConnections = metricRegistry.counter(name("total", "connections"));
+        totalReconnects = metricRegistry.counter(name("total", "reconnects"));
     }
 }
