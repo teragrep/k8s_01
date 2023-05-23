@@ -176,7 +176,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
             // Craft syslog message and structured-data
             SDElement SDMetadata = new SDElement("kubernetesmeta@48577")
                     .addSDParam("kubernetes", kubernetesMetadata.toString())
-                    .addSDParam("docker", dockerMetadata.toString());
+                    .addSDParam("docker", dockerMetadata.toString())
+                    .addSDParam("stream", log.getStream());
             LOGGER.trace(
                     "[{}] Kubernetes metadata: {}",
                     uuid,
