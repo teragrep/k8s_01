@@ -61,20 +61,22 @@ public class K8SConsumer implements Consumer<FileRecord> {
     public void accept(FileRecord record) {
 
             UUID uuid = java.util.UUID.randomUUID();
-            LOGGER.debug(
-                    "[{}] Got a new record from file: {}/{}",
-                    uuid,
-                    record.getPath(),
-                    record.getFilename()
-            );
-            LOGGER.debug(
-                    "[{}] Reading {} starting from {}, file progress {}/{}",
-                    uuid,
-                    record.getRecord().length,
-                    record.getStartOffset(),
-                    (int) (record.getStartOffset()+record.getRecord().length),
-                    record.getEndOffset()
-            );
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "[{}] Got a new record from file: {}/{}",
+                        uuid,
+                        record.getPath(),
+                        record.getFilename()
+                );
+                LOGGER.debug(
+                        "[{}] Reading {} starting from {}, file progress {}/{}",
+                        uuid,
+                        record.getRecord().length,
+                        record.getStartOffset(),
+                        (int) (record.getStartOffset() + record.getRecord().length),
+                        record.getEndOffset()
+                );
+            }
             KubernetesLogFilePOJO log;
             try {
                 // We want to read the kubernetes log event into a POJO, mostly for the timestamp
@@ -163,15 +165,18 @@ public class K8SConsumer implements Consumer<FileRecord> {
                         appConfig.getKubernetes().getLabels().getAppname().getFallback()
                 );
             }
-            LOGGER.debug(
-                    "[{}] Resolved message to be {}@{} from {}/{} generated at {}",
-                    uuid,
-                    appname,
-                    hostname,
-                    namespace,
-                    podname,
-                    log.getTime()
-            );
+
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "[{}] Resolved message to be {}@{} from {}/{} generated at {}",
+                        uuid,
+                        appname,
+                        hostname,
+                        namespace,
+                        podname,
+                        log.getTime()
+                );
+            }
 
             // Craft syslog message and structured-data
             SDElement SDMetadata = new SDElement("kubernetesmeta@48577")

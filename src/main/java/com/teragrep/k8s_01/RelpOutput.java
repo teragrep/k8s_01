@@ -37,16 +37,20 @@ public class RelpOutput {
     RelpOutput(AppConfigRelp appConfigRelp, int threadId) {
         relpConfig = appConfigRelp;
         id = threadId;
-        LOGGER.debug(
-                "[#{}] Started Relp thread #{}",
-                getId(),
-                getId()
-        );
-        LOGGER.trace(
-                "[#{}] Received Relp config: {}",
-                getId(),
-                relpConfig
-        );
+        if(LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                    "[#{}] Started Relp thread #{}",
+                    getId(),
+                    getId()
+            );
+        }
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(
+                    "[#{}] Received Relp config: {}",
+                    getId(),
+                    relpConfig
+            );
+        }
         relpConnection = new RelpConnection();
         relpConnection.setConnectionTimeout(relpConfig.getConnectionTimeout());
         relpConnection.setReadTimeout(relpConfig.getReadTimeout());
@@ -58,12 +62,14 @@ public class RelpOutput {
         boolean connected = false;
         while (!connected) {
             try {
-                LOGGER.debug(
-                        "[#{}] Connecting to {}:{}",
-                        getId(),
-                        relpConfig.getTarget(),
-                        relpConfig.getPort()
-                );
+                if(LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "[#{}] Connecting to {}:{}",
+                            getId(),
+                            relpConfig.getTarget(),
+                            relpConfig.getPort()
+                    );
+                }
                 connected = relpConnection.connect(relpConfig.getTarget(), relpConfig.getPort());
             } catch (IOException | TimeoutException e) {
                 LOGGER.error(
@@ -105,27 +111,33 @@ public class RelpOutput {
     }
 
     public void send(SyslogMessage syslogMessage) {
-        LOGGER.debug(
-                "[#{}] Got a new message from {}@{}",
-                getId(),
-                syslogMessage.getAppName(),
-                syslogMessage.getHostname()
-        );
-        LOGGER.trace(
-                "[#{}] Sending message: {}",
-                getId(),
-                syslogMessage.toRfc5424SyslogMessage()
-        );
+        if(LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                    "[#{}] Got a new message from {}@{}",
+                    getId(),
+                    syslogMessage.getAppName(),
+                    syslogMessage.getHostname()
+            );
+        }
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(
+                    "[#{}] Sending message: {}",
+                    getId(),
+                    syslogMessage.toRfc5424SyslogMessage()
+            );
+        }
         RelpBatch batch = new RelpBatch();
         batch.insert(syslogMessage.toRfc5424SyslogMessage().getBytes(StandardCharsets.UTF_8));
 
         boolean allSent = false;
         while (!allSent) {
             try {
-                LOGGER.trace(
-                        "[#{}] Committing batch",
-                        getId()
-                );
+                if(LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(
+                            "[#{}] Committing batch",
+                            getId()
+                    );
+                }
                 relpConnection.commit(batch);
             } catch (IllegalStateException | IOException | java.util.concurrent.TimeoutException e) {
                 LOGGER.error(
