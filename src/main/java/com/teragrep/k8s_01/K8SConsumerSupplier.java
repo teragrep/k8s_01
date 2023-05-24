@@ -27,21 +27,22 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class K8SConsumerSupplier implements Supplier<Consumer<FileRecord>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(K8SConsumerSupplier.class);
-
-    private final K8SConsumer k8SConsumer;
+    private final AppConfig appConfig;
+    private final KubernetesCachingAPIClient cacheClient;
+    private final BlockingQueue<RelpOutput> relpOutputPool;
 
     K8SConsumerSupplier(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
             BlockingQueue<RelpOutput> relpOutputPool
     ) {
-        this.k8SConsumer = new K8SConsumer(appConfig, cacheClient, relpOutputPool);
+        this.appConfig = appConfig;
+        this.cacheClient = cacheClient;
+        this.relpOutputPool = relpOutputPool;
     }
 
     @Override
     public Consumer<FileRecord> get() {
-        // retursn always the same instance
-        return k8SConsumer;
+        return new K8SConsumer(appConfig, cacheClient, relpOutputPool);
     }
 }
