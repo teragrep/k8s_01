@@ -42,7 +42,7 @@
     <dependency>
       <groupId>com.teragrep</groupId>
       <artifactId>rlo_13</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
     </dependency>
 
     <!-- RELP sending library -->
