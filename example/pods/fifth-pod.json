@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "fifth-pod",
+    "namespace": "default"
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "fifth-pod",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 0,
+    "containers": [
+      {
+        "image": "rockylinux:8",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "fifth-pod",
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "echo 'I am fifth pod. I have no labels.'; sleep inf"
+        ]
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}

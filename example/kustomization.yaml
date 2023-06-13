@@ -10,6 +10,7 @@ resources:
   - pods/second-pod.json
   - pods/third-pod.json
   - pods/fourth-pod.json
+  - pods/fifth-pod.json
   - pods/k8s_01.json
   - pods/receiver.json
 configMapGenerator:
