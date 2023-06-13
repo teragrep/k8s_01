@@ -17,6 +17,7 @@
 
 package com.teragrep.k8s_01;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.teragrep.k8s_01.config.AppConfig;
@@ -35,7 +36,7 @@ import java.util.regex.Pattern;
 
 public class KubernetesLogReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesLogReader.class);
-
+    private static final MetricRegistry metricRegistry = new MetricRegistry();
     static Gson gson = new Gson();
     public static void main(String[] args) throws IOException {
         AppConfig appConfig;
@@ -64,6 +65,7 @@ public class KubernetesLogReader {
             return;
         }
         KubernetesCachingAPIClient cacheClient = new KubernetesCachingAPIClient(appConfig.getKubernetes());
+        PrometheusMetrics prometheusMetrics = new PrometheusMetrics(appConfig.getMetrics().getPort());
 
         // Pool of Relp output threads to be shared by every consumer
         BlockingQueue<RelpOutput> relpOutputPool = new LinkedBlockingDeque<>(appConfig.getRelp().getOutputThreads());
@@ -79,7 +81,7 @@ public class KubernetesLogReader {
                         "Adding RelpOutput thread #{}",
                         i
                 );
-                relpOutputPool.put(new RelpOutput(appConfig.getRelp(), i));
+                relpOutputPool.put(new RelpOutput(appConfig.getRelp(), i, metricRegistry));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -171,5 +173,6 @@ public class KubernetesLogReader {
                 throw new RuntimeException(e);
             }
         }
+        prometheusMetrics.close();
     }
 }

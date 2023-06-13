@@ -19,24 +19,12 @@ package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
 
-/* POJO representing the main config.json */
-public class AppConfig {
-    private AppConfigKubernetes kubernetes;
-
-    public AppConfigMetrics getMetrics() {
-        return metrics;
+public class AppConfigMetrics {
+    public int getPort() {
+        return port;
     }
 
-    private AppConfigMetrics metrics;
-    private AppConfigRelp relp;
-
-    public AppConfigKubernetes getKubernetes() {
-        return kubernetes;
-    }
-
-    public AppConfigRelp getRelp() {
-        return relp;
-    }
+    private int port;
 
     @Override
     public String toString() {
