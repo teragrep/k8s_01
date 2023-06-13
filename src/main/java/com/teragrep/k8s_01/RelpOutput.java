@@ -36,12 +36,12 @@ public class RelpOutput {
     private final RelpConnection relpConnection;
     private final AppConfigRelp relpConfig;
     private final int id;
-    Counter totalReconnects;
-    Counter totalConnections;
-    Meter throughputBytes;
-    Meter throughputRecords;
-    Meter throughputErrors;
-    RelpOutput(AppConfigRelp appConfigRelp, int threadId) {
+    private final Counter totalReconnects;
+    private final Counter totalConnections;
+    private final Meter throughputBytes;
+    private final Meter throughputRecords;
+    private final Meter throughputErrors;
+    RelpOutput(AppConfigRelp appConfigRelp, int threadId, MetricRegistry metricRegistry) {
         relpConfig = appConfigRelp;
         id = threadId;
         if(LOGGER.isDebugEnabled()) {
@@ -62,7 +62,14 @@ public class RelpOutput {
         relpConnection.setConnectionTimeout(relpConfig.getConnectionTimeout());
         relpConnection.setReadTimeout(relpConfig.getReadTimeout());
         relpConnection.setWriteTimeout(relpConfig.getWriteTimeout());
-        loadMetrics();
+        // Throughput
+        throughputBytes = metricRegistry.meter(name("throughput", "bytes"));
+        throughputRecords = metricRegistry.meter(name("throughput", "records"));
+        throughputErrors = metricRegistry.meter(name("throughput", "errors"));
+
+        // Totals
+        totalConnections = metricRegistry.counter(name("total", "connections"));
+        totalReconnects = metricRegistry.counter(name("total", "reconnects"));
         connect();
     }
 
@@ -182,18 +189,5 @@ public class RelpOutput {
 
     public int getId() {
         return id;
-    }
-
-    private void loadMetrics() {
-        // All registered through PrometheusMetrics
-        MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate("default");
-        // Throughput
-        throughputBytes = metricRegistry.meter(name("throughput", "bytes"));
-        throughputRecords = metricRegistry.meter(name("throughput", "records"));
-        throughputErrors = metricRegistry.meter(name("throughput", "errors"));
-
-        // Totals
-        totalConnections = metricRegistry.counter(name("total", "connections"));
-        totalReconnects = metricRegistry.counter(name("total", "reconnects"));
     }
 }
