@@ -34,7 +34,7 @@ import static com.codahale.metrics.MetricRegistry.name;
 
 public class PrometheusMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusMetrics.class);
-    Server jettyServer;
+    private final Server jettyServer;
     public PrometheusMetrics(int port) {
         LOGGER.info("Starting prometheus metrics server on port {}", port);
         // prometheus-exporter
