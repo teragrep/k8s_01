@@ -82,11 +82,13 @@ class KubernetesCachingAPIClient {
 
         RemovalListener<HashMap<String, String>, PodMetadataContainer> listener = removalNotification -> {
             if (removalNotification.wasEvicted()) {
-                LOGGER.debug(
-                        "Evicted pod {} from cache: {}",
-                        removalNotification.getKey(),
-                        removalNotification.getCause().name()
-                );
+                if(LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "Evicted pod {} from cache: {}",
+                            removalNotification.getKey(),
+                            removalNotification.getCause().name()
+                    );
+                }
             }
         };
         podCache = CacheBuilder
@@ -112,11 +114,13 @@ class KubernetesCachingAPIClient {
 
         RemovalListener<String, NamespaceMetadataContainer> listener = removalNotification -> {
             if (removalNotification.wasEvicted()) {
-                LOGGER.debug(
-                        "Evicted namespace {} from cache: {}",
-                        removalNotification.getKey(),
-                        removalNotification.getCause().name()
-                );
+                if(LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "Evicted namespace {} from cache: {}",
+                            removalNotification.getKey(),
+                            removalNotification.getCause().name()
+                    );
+                }
             }
         };
         namespaceCache = CacheBuilder

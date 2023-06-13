@@ -17,20 +17,10 @@
 
 package com.teragrep.k8s_01;
 
-import com.cloudbees.syslog.Facility;
-import com.cloudbees.syslog.SDElement;
-import com.cloudbees.syslog.Severity;
-import com.cloudbees.syslog.SyslogMessage;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
 import com.teragrep.k8s_01.config.AppConfig;
-import com.teragrep.k8s_01.metadata.KubernetesMetadata;
-import com.teragrep.k8s_01.metadata.NamespaceMetadataContainer;
-import com.teragrep.k8s_01.metadata.PodMetadataContainer;
 import com.teragrep.rlo_12.DirectoryEventWatcher;
-import com.teragrep.rlo_13.FileRecord;
 import com.teragrep.rlo_13.StatefulFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +31,6 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class KubernetesLogReader {
@@ -164,11 +152,13 @@ public class KubernetesLogReader {
 
         // FIXME: Is this necessary
         for (Thread thread : threads) {
-            LOGGER.trace(
-                    "Waiting for thread {}#{} to finish",
-                    thread.getName(),
-                    thread.getId()
-            );
+            if(LOGGER.isTraceEnabled()) {
+                LOGGER.trace(
+                        "Waiting for thread {}#{} to finish",
+                        thread.getName(),
+                        thread.getId()
+                );
+            }
             try {
                 thread.join();
             } catch (InterruptedException e) {
