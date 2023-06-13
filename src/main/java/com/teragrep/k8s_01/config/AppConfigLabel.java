@@ -37,7 +37,7 @@ public class AppConfigLabel {
     public String getLabel(String label) {
         if(label.equals("stderr") && labelStderr != null) {
             return labelStderr;
-        });
+        }
         return labelStdout;
     }
 
