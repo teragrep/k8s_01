@@ -13,6 +13,14 @@
     "hostname": "receiver",
     "dnsPolicy": "ClusterFirst",
     "terminationGracePeriodSeconds": 0,
+    "volumes": [
+      {
+        "name": "receiver-config",
+        "configMap": {
+          "name": "receiver-config"
+        }
+      }
+    ],
     "containers": [
       {
         "image": "ghcr.io/teragrep/rlp_07/app:latest",
@@ -24,6 +32,18 @@
             "name": "relp",
             "containerPort": 1601
           }
+        ],
+        "volumeMounts": [
+          {
+            "mountPath": "/config/",
+            "name": "receiver-config"
+          }
+        ],
+        "command": [
+          "/usr/bin/java"
+        ],
+        "args": [
+          "-Dlog4j.configurationFile=/config/log4j2.xml", "-jar", "/opt/teragrep/rlp_07/lib/rlp_07.jar"
         ]
       }
     ],
