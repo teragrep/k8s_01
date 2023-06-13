@@ -3,7 +3,8 @@
     "name": "first-pod",
     "namespace": "default",
     "labels": {
-      "app": "first-pod-hostname",
+      "app": "first-pod-appname",
+      "app-stderr": "first-pod-appname-stderr",
       "env": "dev"
     }
   },
@@ -23,7 +24,7 @@
         ],
         "args": [
           "-c",
-          "echo 'I am first pod'; echo 'This is an example log message'; sleep inf;"
+          "echo 'I am first pod'; echo 'This is an example log message'; echo 'This is something to stderr' >&2; sleep inf;"
         ]
       }
     ],

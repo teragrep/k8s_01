@@ -4,6 +4,7 @@
     "namespace": "default",
     "labels": {
       "host": "third-pod-hostname",
+      "host-stderr": "third-pod-hostname-stderr",
       "app": "third-pod-app",
       "env": "dev"
     }
@@ -24,7 +25,7 @@
         ],
         "args": [
           "-c",
-          "echo 'I am third pod #1'; echo 'I will not print more logs'; sleep inf"
+          "echo 'I am third pod #1'; echo 'I will not print more logs' >&2; sleep inf"
         ]
       },
       {

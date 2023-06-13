@@ -157,11 +157,11 @@ public class K8SConsumer implements Consumer<FileRecord> {
             }
             else {
                 hostname = podMetadataContainer.getLabels().getOrDefault(
-                        appConfig.getKubernetes().getLabels().getHostname().getLabel(),
+                        appConfig.getKubernetes().getLabels().getHostname().getLabel(log.getStream()),
                         appConfig.getKubernetes().getLabels().getHostname().getFallback()
                 );
                 appname = podMetadataContainer.getLabels().getOrDefault(
-                        appConfig.getKubernetes().getLabels().getAppname().getLabel(),
+                        appConfig.getKubernetes().getLabels().getAppname().getLabel(log.getStream()),
                         appConfig.getKubernetes().getLabels().getAppname().getFallback()
                 );
             }
