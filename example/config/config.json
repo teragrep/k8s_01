@@ -25,7 +25,8 @@
       "first-pod_default_.*",
       "second-pod_default_.*",
       "third-pod_default_third-pod-one-.*",
-      "third-pod_default_third-pod-two-.*"
+      "third-pod_default_third-pod-two-.*",
+      "fifth-pod_default_.*"
     ]
   },
   "relp": {

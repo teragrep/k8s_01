@@ -89,9 +89,9 @@ public class RelpOutput {
                 totalConnections.inc();
             } catch (IOException | TimeoutException e) {
                 LOGGER.error(
-                        "[#{}] Can't connect to Relp server:",
+                        "[#{}] Can't connect to Relp server: {}",
                         getId(),
-                        e
+                        e.getMessage()
                 );
                 throughputErrors.mark();
                 totalConnections.dec();

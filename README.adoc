@@ -2,15 +2,17 @@
 
 A container that will read mounted container logfiles, then enriches them using Kubernetes API server, and forwards them with RELP to wanted target server.
 
-# Usage
+## Usage
 
-## Service account
+### Service account
 
 Create simple ServiceAccount.
 
 Example:
 
-```json
+
+[source,json]
+----
 {
   "apiVersion": "v1",
   "kind": "ServiceAccount",
@@ -18,14 +20,15 @@ Example:
     "name": "kubelogreader"
   }
 }
-```
+----
 
-## Role 
+### Role
 Create a Role with access to 'pods' and 'namespaces' resources, with verbs 'get', 'watch' and 'list'.
 
 Example:
 
-```json
+[source,json]
+----
 {
   "apiVersion": "rbac.authorization.k8s.io/v1",
   "kind": "Role",
@@ -50,15 +53,16 @@ Example:
     }
   ]
 }
-```
+----
 
-## Role binding
+### Role binding
 
 Create Role Binding that contains the service account
 
 Example:
 
-```json
+[source,json]
+----
 {
   "apiVersion": "rbac.authorization.k8s.io/v1",
   "kind": "RoleBinding",
@@ -78,15 +82,16 @@ Example:
     "apiGroup": "rbac.authorization.k8s.io"
   }
 }
-```
+----
 
-## Service
+### Service
 
 Create a service for the service account to use
 
 Example:
 
-```json
+[source,json]
+----
 {
   "apiVersion": "v1",
   "kind": "Secret",
@@ -98,24 +103,26 @@ Example:
   },
   "type": "kubernetes.io/service-account-token"
 }
-```
+----
 
-## Volume mount
+### Volume mount
 
 Create configMapGenerator called `app-config` using kustomize
 
-```yaml
+[source,yaml]
+----
 configMapGenerator:
   - name: app-config
     files:
       - config/config.json
       - config/log4j2.xml
-```
+----
 
 where the configs are
 
-#### config.json
-```json
+.config.json
+[source,json]
+----
 {
   "kubernetes": {
     "logdir": "/var/log/containers",
@@ -151,10 +158,11 @@ where the configs are
     "outputThreads": 5
   }
 }
-```
+----
 
-####log4j2.xml
-```xml
+.log4j2.xml
+[source,xml]
+----
 <?xml version="1.0" encoding="UTF-8" ?>
 <Configuration monitorInterval="30" status="error">
     <Appenders>
@@ -180,13 +188,14 @@ where the configs are
         </Root>
     </Loggers>
 </Configuration>
-```
+----
 
-## k8s_01 pod
+### k8s_01 pod
 
 Make the pod definition use the service account we just made.
 
-```json
+[source,json]
+----
 {
   <snip>
   "spec": {
@@ -195,11 +204,12 @@ Make the pod definition use the service account we just made.
     <snip>
   }
 }
-```
+----
 
 Mount the log containing volumes for runtime processing
 
-```json
+[source,json]
+----
 {
   "spec": {
     <snip>
@@ -242,11 +252,12 @@ Mount the log containing volumes for runtime processing
     <snip>
   }
 }
-```
+----
 
 And also mount those volumes
 
-```json
+[source,json]
+----
 {
   "spec": {
     <snip>
@@ -282,11 +293,12 @@ And also mount those volumes
     ]
   }
 }
-```
+----
 
 And start the k8s_01 image with for example the following arguments. It uses `KUBERNETES_SERVICE_HOST` with `KUBERNETES_SERVICE_PORT` environment variables to find out the API server, and `RELP_SERVICE_PORT_1601_TCP_ADDR` to find the port for the RELP target server.
 
-```json
+[source,json]
+----
  "command": [
   "/usr/bin/bash"
 ],
@@ -294,8 +306,8 @@ And start the k8s_01 image with for example the following arguments. It uses `KU
   "-c",
   "jq --arg host \"${KUBERNETES_SERVICE_HOST}\" --arg port \"${KUBERNETES_SERVICE_PORT}\" --arg target \"${RELP_SERVICE_PORT_1601_TCP_ADDR}\" '.relp.target=$target | .kubernetes.url=(\"https://\" + $host + \":\" + $port)' /config/..data/config.json > /opt/teragrep/k8s_01/etc/config.json; cd /opt/teragrep/k8s_01 || exit 1; java -Dlog4j2.configurationFile=file:/config/..data/log4j2.xml -jar lib/k8s_01.jar;"
 ]
-```
+----
 
-# Example test cluster usage
+## Example test cluster usage
 
 Read example project in `/example` directory for example usage
