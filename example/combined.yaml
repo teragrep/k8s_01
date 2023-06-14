@@ -47,13 +47,15 @@ data:
         "labels": {
           "hostname": {
             "prefix": "prefix-",
-            "label": "host",
-            "fallback": "fallback-hostname"
+            "fallback": "fallback-hostname",
+            "labelStdout": "host",
+            "labelStderr": "host-stderr"
           },
           "appname": {
             "prefix": "prefix-",
-            "label": "app",
-            "fallback": "fallback-appname"
+            "fallback": "fallback-appname",
+            "labelStdout": "app",
+            "labelStderr":  "app-stderr"
           }
         },
         "logfiles": [
@@ -102,8 +104,7 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-b72787fcgc
----
+  name: app-config-9m5c6kk4c8
 apiVersion: v1
 kind: Secret
 metadata:
@@ -153,7 +154,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    app: first-pod-hostname
+    app: first-pod-appname
+    app-stderr: first-pod-appname-stderr
     env: dev
   name: first-pod
   namespace: default
@@ -161,7 +163,8 @@ spec:
   containers:
   - args:
     - -c
-    - echo 'I am first pod'; echo 'This is an example log message'; sleep inf;
+    - echo 'I am first pod'; echo 'This is an example log message'; echo 'This is
+      something to stderr' >&2; sleep inf;
     command:
     - /usr/bin/bash
     image: rockylinux:8
@@ -245,7 +248,7 @@ spec:
   terminationGracePeriodSeconds: 0
   volumes:
   - configMap:
-      name: app-config-b72787fcgc
+      name: app-config-9m5c6kk4c8
     name: app-config
   - hostPath:
       path: /var/log/containers
@@ -319,13 +322,15 @@ metadata:
     app: third-pod-app
     env: dev
     host: third-pod-hostname
+    host-stderr: third-pod-hostname-stderr
   name: third-pod
   namespace: default
 spec:
   containers:
   - args:
     - -c
-    - 'echo ''I am third pod #1''; echo ''I will not print more logs''; sleep inf'
+    - 'echo ''I am third pod #1''; echo ''I will not print more logs'' >&2; sleep
+      inf'
     command:
     - /usr/bin/bash
     image: rockylinux:8

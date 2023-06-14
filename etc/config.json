@@ -10,13 +10,15 @@
     "labels": {
       "hostname": {
         "prefix": "prefix-",
-        "label": "host",
-        "fallback": "fallback-hostname"
+        "fallback": "fallback-hostname",
+        "labelStdout": "host",
+        "labelStderr": "host-stderr"
       },
       "appname": {
         "prefix": "prefix-",
-        "label": "app",
-        "fallback": "fallback-appname"
+        "fallback": "fallback-appname",
+        "labelStdout": "app",
+        "labelStderr":  "app-stderr"
       }
     },
     "logfiles": [

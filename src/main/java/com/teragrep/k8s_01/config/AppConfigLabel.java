@@ -22,19 +22,23 @@ import com.google.gson.Gson;
 /* POJO representing the .kubernetes.labels.{hostname,appname} part of config.json */
 public class AppConfigLabel {
     private String prefix;
-    private String label;
     private String fallback;
+    private String labelStdout;
+    private String labelStderr;
 
     public String getPrefix() {
         return prefix;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
     public String getFallback() {
         return fallback;
+    }
+
+    public String getLabel(String label) {
+        if(label.equals("stderr") && labelStderr != null) {
+            return labelStderr;
+        }
+        return labelStdout;
     }
 
     @Override
