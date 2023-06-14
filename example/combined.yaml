@@ -106,6 +106,28 @@ kind: ConfigMap
 metadata:
   name: app-config-9m5c6kk4c8
 apiVersion: v1
+data:
+  log4j2.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Configuration status="INFO">
+      <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+        </Console>
+      </Appenders>
+      <Loggers>
+        <Root level="INFO" additivity="false">
+          <AppenderRef ref="Console" />
+        </Root>
+        <Logger name="com.teragrep.rlp_03" level="INFO" additivity="false">
+          <AppenderRef ref="Console" />
+        </Logger>
+      </Loggers>
+    </Configuration>
+kind: ConfigMap
+metadata:
+  name: receiver-config-cf8g6bh7tg
+---
+apiVersion: v1
 kind: Secret
 metadata:
   annotations:
@@ -277,19 +299,32 @@ metadata:
   namespace: default
 spec:
   containers:
-  - image: ghcr.io/teragrep/rlp_07/app:latest
+  - args:
+    - -Dlog4j.configurationFile=/config/log4j2.xml
+    - -jar
+    - /opt/teragrep/rlp_07/lib/rlp_07.jar
+    command:
+    - /usr/bin/java
+    image: ghcr.io/teragrep/rlp_07/app:latest
     imagePullPolicy: IfNotPresent
     name: first-pod
     ports:
     - containerPort: 1601
       name: relp
       protocol: TCP
+    volumeMounts:
+    - mountPath: /config/
+      name: receiver-config
   dnsPolicy: ClusterFirst
   hostname: receiver
   imagePullSecrets:
   - name: ghcr.io
   restartPolicy: Always
   terminationGracePeriodSeconds: 0
+  volumes:
+  - configMap:
+      name: receiver-config-cf8g6bh7tg
+    name: receiver-config
 ---
 apiVersion: v1
 kind: Pod

@@ -16,5 +16,8 @@ resources:
 configMapGenerator:
   - name: app-config
     files:
-      - config/config.json
-      - config/log4j2.xml
+      - config/k8s_01/config.json
+      - config/k8s_01/log4j2.xml
+  - name: receiver-config
+    files:
+      - config/rlp_07/log4j2.xml
