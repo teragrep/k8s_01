@@ -142,15 +142,17 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     appConfig.getKubernetes().getUrl()
             );
             JsonObject dockerMetadata = new JsonObject();
-            dockerMetadata.addProperty("container_id", ContainerInfo.getContainerID(record.getFilename()));
+            String containerId = ContainerInfo.getContainerID(record.getFilename());
+            dockerMetadata.addProperty("container_id", containerId);
 
             // Handle hostname and appname, use fallback values when labels are empty or if label not found
             String hostname;
             String appname;
             if(podMetadataContainer.getLabels() == null) {
                 LOGGER.warn(
-                        "[{}] Can't resolve metadata and/or labels, using fallback values for hostname and appname",
-                        uuid
+                        "[{}] Can't resolve metadata and/or labels for container <{}>, using fallback values for hostname and appname",
+                        uuid,
+                        containerId
                 );
                 hostname = appConfig.getKubernetes().getLabels().getHostname().getFallback();
                 appname = appConfig.getKubernetes().getLabels().getAppname().getFallback();

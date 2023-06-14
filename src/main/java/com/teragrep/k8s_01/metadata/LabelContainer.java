@@ -26,6 +26,10 @@ public class LabelContainer {
     JsonObject jsonObject;
     public LabelContainer(Map<String, String> labels) {
         jsonObject = new JsonObject();
+        // We are not sure if API always returns labels, so we just return early.
+        if(labels == null) {
+            return;
+        }
         for(Map.Entry<String, String> entry : labels.entrySet()) {
             jsonObject.addProperty(entry.getKey(), entry.getValue());
         }
