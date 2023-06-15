@@ -193,7 +193,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     dockerMetadata
             );
             SyslogMessage syslog = new SyslogMessage()
-                    .withTimestamp(log.getTimestamp(), true)
+                    .withTimestamp(log.getTimestamp())
                     .withSeverity(Severity.WARNING)
                     .withHostname(appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname)
                     .withAppName(appConfig.getKubernetes().getLabels().getAppname().getPrefix() + appname)
