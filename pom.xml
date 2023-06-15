@@ -55,10 +55,11 @@
       <version>3.3.1</version>
     </dependency>
 
+    <!-- RFC5424 syslog formatting library -->
     <dependency>
       <groupId>com.teragrep</groupId>
       <artifactId>rlo_14</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/io.kubernetes/client-java -->
