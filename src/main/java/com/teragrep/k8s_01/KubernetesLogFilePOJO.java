@@ -42,15 +42,8 @@ public class KubernetesLogFilePOJO {
         return time;
     }
 
-    public Date getTimestamp() {
-        // 2023-03-30T14:37:39.776175466Z
-        DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-                .appendPattern("yyyy-MM-dd'T'HH:mm:ss.")
-                .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, false)
-                .appendPattern("X")
-                .toFormatter();
-        LocalDateTime localDateTime = LocalDateTime.parse(time, dateTimeFormatter);
-        return Date.from(localDateTime.toInstant(ZoneOffset.ofHours(0))); // FIXME: The timestamp offset needs to be verified, we do not want to edit it?
+    public String getTimestamp() {
+        return time;
     }
 
     @Override

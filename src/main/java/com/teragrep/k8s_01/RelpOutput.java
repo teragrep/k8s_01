@@ -17,7 +17,7 @@
 
 package com.teragrep.k8s_01;
 
-import com.cloudbees.syslog.SyslogMessage;
+import com.teragrep.rlo_14.SyslogMessage;
 import com.codahale.metrics.*;
 import com.teragrep.k8s_01.config.AppConfigRelp;
 import com.teragrep.rlp_01.RelpBatch;
