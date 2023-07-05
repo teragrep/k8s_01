@@ -1,0 +1,20 @@
+# Usage
+
+The container `receiver` is the destination relp server and it will print to stdout any relp messages received. You can follow the logs with the command `kubectl logs -f receiver`
+
+## With kustomize
+
+Run `run.sh` to start example cluster. 
+
+Run `stop.sh` to stop the example cluster.
+
+## Manually
+
+Run the following commands:
+
+[source,bash,title="Applying example configs"]
+----
+kubectl create configmap receiver-config --from-file=config/rlp_07/log4j2.xml
+kubectl create configmap app-config --from-file=config/k8s_01/config.json --from-file=config/k8s_01/log4j2.xml
+for file in services/*.json pods/*.json; do kubectl apply -f $file; done;
+----

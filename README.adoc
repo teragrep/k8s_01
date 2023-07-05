@@ -4,191 +4,55 @@ A container that will read mounted container logfiles, then enriches them using 
 
 ## Usage
 
+All of the files need to be applied with `kubectl apply -f {filename.json}`
+
 ### Service account
 
-Create simple ServiceAccount.
+Create simple ServiceAccount
 
-Example:
-
-
-[source,json]
+[source,json,title="link:example/services/serviceaccount.json[serviceaccount.json]"]
 ----
-{
-  "apiVersion": "v1",
-  "kind": "ServiceAccount",
-  "metadata": {
-    "name": "kubelogreader"
-  }
-}
+include::example/services/serviceaccount.json[]
 ----
 
 ### Role
 Create a Role with access to 'pods' and 'namespaces' resources, with verbs 'get', 'watch' and 'list'.
 
-Example:
-
-[source,json]
+[source,json,title="example/services/role.json"]
 ----
-{
-  "apiVersion": "rbac.authorization.k8s.io/v1",
-  "kind": "Role",
-  "metadata": {
-    "namespace": "default",
-    "name": "kubelogreader"
-  },
-  "rules": [
-    {
-      "apiGroups": [
-        ""
-      ],
-      "resources": [
-        "pods",
-        "namespaces"
-      ],
-      "verbs": [
-        "get",
-        "watch",
-        "list"
-      ]
-    }
-  ]
-}
+include::example/services/role.json[]
 ----
 
 ### Role binding
 
 Create Role Binding that contains the service account
 
-Example:
-
-[source,json]
+[source,json,title="link:example/services/rolebinding.json[rolebinding.json]"]
 ----
-{
-  "apiVersion": "rbac.authorization.k8s.io/v1",
-  "kind": "RoleBinding",
-  "metadata": {
-    "name": "kubelogreader",
-    "namespace": "default"
-  },
-  "subjects": [
-    {
-      "kind": "ServiceAccount",
-      "name": "kubelogreader"
-    }
-  ],
-  "roleRef": {
-    "kind": "Role",
-    "name": "kubelogreader",
-    "apiGroup": "rbac.authorization.k8s.io"
-  }
-}
+include::example/services/rolebinding.json[]
 ----
 
 ### Service
 
 Create a service for the service account to use
 
-Example:
-
-[source,json]
+[source,json,title="link:example/services/serviceaccount.json[serviceaccount.json]"]
 ----
-{
-  "apiVersion": "v1",
-  "kind": "Secret",
-  "metadata": {
-    "name": "kubelogreader",
-    "annotations": {
-      "kubernetes.io/service-account.name": "kubelogreader"
-    }
-  },
-  "type": "kubernetes.io/service-account-token"
-}
+include::example/services/serviceaccount.json[]
 ----
 
 ### Volume mount
 
-Create configMapGenerator called `app-config` using kustomize
+Create configMapGenerator called `app-config`, for example in `examples` project:
 
-[source,yaml]
+[source,bash]
 ----
-configMapGenerator:
-  - name: app-config
-    files:
-      - config/config.json
-      - config/log4j2.xml
+kubectl create configmap app-config --from-file=example/config/k8s_01/config.json --from-file=example/config/k8s_01/log4j2.xml
 ----
 
-where the configs are
+Reference k8s_01 link:example/config/k8s_01/config.json[config.json]
 
-.config.json
-[source,json]
-----
-{
-  "kubernetes": {
-    "logdir": "/var/log/containers",
-    "url": "https://127.0.0.1:8443",
-    "cacheExpireInterval": 300,
-    "cacheMaxEntries": 4096,
-    "labels": {
-      "hostname": {
-        "prefix": "prefix-",
-        "label": "host",
-        "fallback": "fallback-hostname"
-      },
-      "appname": {
-        "prefix": "prefix-",
-        "label": "app",
-        "fallback": "fallback-appname"
-      }
-    },
-    "logfiles": [
-      "first-pod_default_.*",
-      "second-pod_default_.*",
-      "third-pod_default_third-pod-one-.*",
-      "third-pod_default_third-pod-two-.*"
-    ]
-  },
-  "relp": {
-    "target": "receiver.receiver.default",
-    "port": 1601,
-    "connectionTimeout": 5000,
-    "readTimeout": 5000,
-    "writeTimeout": 5000,
-    "reconnectInterval": 5000,
-    "outputThreads": 5
-  }
-}
-----
-
-.log4j2.xml
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" ?>
-<Configuration monitorInterval="30" status="error">
-    <Appenders>
-        <Console name="STDOUT">
-            <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss.SSS} [%level] [%logger] [%thread] %msg%ex%n" />
-        </Console>
-    </Appenders>
-    <Loggers>
-        <Logger name="com.teragrep.k8s_01" level="INFO" additivity="false">
-            <AppenderRef ref="STDOUT" />
-        </Logger>
-        <Logger name="com.teragrep.k8s_01.KubernetesCachingAPIClient" level="DEBUG" additivity="false">
-            <AppenderRef ref="STDOUT" />
-        </Logger>
-        <Logger name="com.teragrep.rlo_12" level="INFO" additivity="false">
-            <AppenderRef ref="STDOUT" />
-        </Logger>
-        <Logger name="com.teragrep.rlo_13" level="INFO" additivity="false">
-            <AppenderRef ref="STDOUT" />
-        </Logger>
-        <Root level="DEBUG">
-            <AppenderRef ref="STDOUT" />
-        </Root>
-    </Loggers>
-</Configuration>
-----
+Reference k8s_01 link:example/config/k8s_01/log4j2.xml[log4j2.xml]
 
 ### k8s_01 pod
 
@@ -306,6 +170,14 @@ And start the k8s_01 image with for example the following arguments. It uses `KU
   "-c",
   "jq --arg host \"${KUBERNETES_SERVICE_HOST}\" --arg port \"${KUBERNETES_SERVICE_PORT}\" --arg target \"${RELP_SERVICE_PORT_1601_TCP_ADDR}\" '.relp.target=$target | .kubernetes.url=(\"https://\" + $host + \":\" + $port)' /config/..data/config.json > /opt/teragrep/k8s_01/etc/config.json; cd /opt/teragrep/k8s_01 || exit 1; java -Dlog4j2.configurationFile=file:/config/..data/log4j2.xml -jar lib/k8s_01.jar;"
 ]
+----
+
+
+Full example config:
+
+[source,json,title="link:example/pods/k8s_01.json[example/pods/k8s_01.json]"]
+----
+include::example/pods/k8s_01.json[]
 ----
 
 ## Example test cluster usage
