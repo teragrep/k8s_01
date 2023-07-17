@@ -7,12 +7,17 @@ spec:
     - configMap:
         name: config
       name: config
+    - persistentVolumeClaim:
+        claimName: statestore-pvc
+      name: statestore
   containers:
     - name: kubelogreader
       image: "{{ .Values.image.repository }}:{{ .Values.image.tag}}"
       volumeMounts:
         - name: config
           mountPath: /config
+        - name: statestore
+          mountPath: /opt/teragrep/k8s_01/var
       env:
         - name: "RELP_TARGET_ADDR"
           valueFrom:

@@ -1,5 +1,8 @@
 image:
   repository: "ghcr.io/teragrep/k8s_01/app"
   tag: "latest"
+persistence:
+  enable: true
+  existingClaim: statestore-pvc
 relptarget: "127.0.0.1"
 relpport: "1601"
