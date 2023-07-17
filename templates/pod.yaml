@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kubelogreader
+spec:
+  volumes:
+    - configMap:
+        name: config
+      name: config
+  containers:
+    - name: kubelogreader
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag}}"
+      volumeMounts:
+        - name: config
+          mountPath: /config
+      env:
+        - name: "RELP_TARGET_ADDR"
+          valueFrom:
+            secretKeyRef:
+              key:  target
+              name: relp
+        - name: "RELP_TARGET_PORT"
+          valueFrom:
+            secretKeyRef:
+              key:  port
+              name: relp
+      command: ["/usr/bin/bash"]
+      args: ["-c", "jq --arg host \"${KUBERNETES_SERVICE_HOST}\" --arg port \"${KUBERNETES_SERVICE_PORT}\" --arg target \"${RELP_TARGET_ADDR}\" --arg targetport \"${RELP_TARGET_PORT}\" '.relp.target=$target | .relp.port=$targetport | .kubernetes.url=(\"https://\" + $host + \":\" + $port)' /config/config.json > /opt/teragrep/k8s_01/etc/config.json; cd /opt/teragrep/k8s_01 || exit 1; exec /usr/bin/java -Dlog4j2.configurationFile=file:/config/log4j2.xml -jar lib/k8s_01.jar"]

@@ -311,3 +311,7 @@ And start the k8s_01 image with for example the following arguments. It uses `KU
 ## Example test cluster usage
 
 Read example project in `/example` directory for example usage
+
+## Example Helm Chart usage
+
+Edit `values.yaml` to contain wanted relp target and relp target port, then run `helm template .` to receive minimal example config. It uses `etc/config.json` and default `log4j2.xml` for configurations, and has no mounts for statefiles.
