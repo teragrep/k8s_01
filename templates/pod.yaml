@@ -31,6 +31,8 @@ spec:
   containers:
     - name: kubelogreader
       image: "{{ .Values.image.repository }}:{{ .Values.image.tag}}"
+      securityContext:
+        privileged: true
       volumeMounts:
         - name: config
           mountPath: /opt/teragrep/k8s_01/etc
