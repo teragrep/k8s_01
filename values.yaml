@@ -4,5 +4,3 @@ image:
 persistence:
   enable: true
   existingClaim: statestore-pvc
-relptarget: "127.0.0.1"
-relpport: "1601"
