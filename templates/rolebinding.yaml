@@ -1,5 +1,5 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: kubelogreader
   namespace: {{.Values.namespace}}
@@ -8,6 +8,6 @@ subjects:
     name: kubelogreader
     namespace: {{.Values.namespace}}
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: kubelogreader
   apiGroup: rbac.authorization.k8s.io

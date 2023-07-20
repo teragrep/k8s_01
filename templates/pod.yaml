@@ -5,7 +5,7 @@ metadata:
   namespace: {{.Values.namespace}}
   labels:
     app: k8s_01
-    host: k8s_01
+    host: kubelogreader
 spec:
   serviceAccount: kubelogreader
   serviceAccountName: kubelogreader
