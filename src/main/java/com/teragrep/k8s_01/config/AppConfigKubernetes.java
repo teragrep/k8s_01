@@ -27,6 +27,7 @@ public class AppConfigKubernetes {
     private AppConfigLabels labels;
     private String[] logfiles;
     private String url;
+    private String timezone;
 
     public int getCacheExpireInterval() {
         return cacheExpireInterval;
@@ -50,6 +51,7 @@ public class AppConfigKubernetes {
     public int getCacheMaxEntries() {
         return cacheMaxEntries;
     }
+    public String getTimezone() { return timezone; }
 
     @Override
     public String toString() {
