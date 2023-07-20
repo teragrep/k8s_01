@@ -18,13 +18,6 @@
 package com.teragrep.k8s_01;
 import com.google.gson.Gson;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.Date;
-
-/* POJO presenting Kubernetes logs, for now used only for getting timestamp */
 public class KubernetesLogFilePOJO {
     private String log;
     private String stream;
@@ -36,10 +29,6 @@ public class KubernetesLogFilePOJO {
 
     public String getStream() {
         return stream;
-    }
-
-    public String getTime() {
-        return time;
     }
 
     public String getTimestamp() {

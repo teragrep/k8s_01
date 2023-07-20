@@ -5,6 +5,7 @@
   "kubernetes": {
     "logdir": "/var/log/containers",
     "url": "https://127.0.0.1:8443",
+    "timezone": "Europe/Helsinki",
     "cacheExpireInterval": 900,
     "cacheMaxEntries": 4096,
     "labels": {

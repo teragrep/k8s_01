@@ -32,6 +32,10 @@ import com.teragrep.rlo_13.FileRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
@@ -46,6 +50,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private final KubernetesCachingAPIClient cacheClient;
 
     private final BlockingQueue<RelpOutput> relpOutputPool;
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxx");
+    private final ZoneId timezoneId;
 
     K8SConsumer(
             AppConfig appConfig,
@@ -55,6 +61,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
         this.appConfig = appConfig;
         this.cacheClient = cacheClient;
         this.relpOutputPool = relpOutputPool;
+        this.timezoneId = ZoneId.of(appConfig.getKubernetes().getTimezone());
+        LOGGER.info("Using {} for as timezone", timezoneId);
     }
     @Override
     public void accept(FileRecord record) {
@@ -124,6 +132,9 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     )
                 );
             }
+            Instant instant = Instant.parse(log.getTimestamp());
+            ZonedDateTime zdt = instant.atZone(timezoneId);
+            String timestamp = zdt.format(format);
 
             LOGGER.trace(
                     "[{}] Raw record value: {}",
@@ -173,7 +184,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                         hostname,
                         namespace,
                         podname,
-                        log.getTime()
+                        timestamp
                 );
             }
 
@@ -193,7 +204,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     dockerMetadata
             );
             SyslogMessage syslog = new SyslogMessage()
-                    .withTimestamp(log.getTimestamp())
+                    .withTimestamp(timestamp, true)
                     .withSeverity(Severity.WARNING)
                     .withHostname(appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname)
                     .withAppName(appConfig.getKubernetes().getLabels().getAppname().getPrefix() + appname)
