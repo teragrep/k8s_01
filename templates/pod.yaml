@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: kubelogreader
+  namespace: {{.Values.namespace}}
   labels:
     app: k8s_01
     host: k8s_01
