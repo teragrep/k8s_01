@@ -104,7 +104,8 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-9m5c6kk4c8
+  name: app-config-2t5785hm6f
+---
 apiVersion: v1
 data:
   log4j2.xml: |
@@ -270,7 +271,7 @@ spec:
   terminationGracePeriodSeconds: 0
   volumes:
   - configMap:
-      name: app-config-9m5c6kk4c8
+      name: app-config-2t5785hm6f
     name: app-config
   - hostPath:
       path: /var/log/containers
