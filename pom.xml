@@ -235,6 +235,10 @@
             <exclude>Dockerfile</exclude>
             <!-- example -->
             <exclude>example/**</exclude>
+            <!-- helm files -->
+            <exclude>Chart.yaml</exclude>
+            <exclude>values.yaml</exclude>
+            <exclude>templates/*.yaml</exclude>
           </excludes>
         </configuration>
       </plugin>
