@@ -4,3 +4,4 @@ image:
 persistence:
   enable: true
   existingClaim: statestore-pvc
+namespace: teragrep
