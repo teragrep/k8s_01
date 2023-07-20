@@ -2,6 +2,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: statestore-pvc
+  namespace: {{.Values.namespace}}
 spec:
   accessModes:
     - ReadWriteOnce
