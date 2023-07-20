@@ -62,7 +62,6 @@ public class K8SConsumer implements Consumer<FileRecord> {
         this.cacheClient = cacheClient;
         this.relpOutputPool = relpOutputPool;
         this.timezoneId = ZoneId.of(appConfig.getKubernetes().getTimezone());
-        LOGGER.info("Using {} as log timezone", timezoneId);
     }
     @Override
     public void accept(FileRecord record) {

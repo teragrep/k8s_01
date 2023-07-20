@@ -54,6 +54,10 @@ class KubernetesCachingAPIClient {
                 config.getCacheMaxEntries(),
                 config.getCacheExpireInterval()
         );
+        LOGGER.info(
+                "Using {} as timezone for logfiles.",
+                config.getTimezone()
+        );
         try {
             ApiClient client = Config.fromCluster();
             client.setBasePath(config.getUrl());
