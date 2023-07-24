@@ -110,27 +110,33 @@ public class KubernetesLogReader {
         K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool);
 
         String[] logfiles = appConfig.getKubernetes().getLogfiles();
+        for (String logfile : logfiles) {
+            LOGGER.debug("Checking if {} is not null", logfile);
+            if (logfile == null) {
+                LOGGER.error("Found null logfile, can't continue. Check configuration json for trailing commas?");
+                return;
+            }
+        }
         LOGGER.debug(
                 "Monitored logfiles: {}",
                 Arrays.toString(logfiles)
         );
+
         List<Thread> threads = new ArrayList<>();
         String statesStore = System.getProperty("user.dir") + "/var";
         LOGGER.debug(
                 "Using {} as statestore",
                 statesStore
         );
+
         // FIXME: VERIFY: SFR is not in try-with-resources block as it will have weird behaviour with threads.
         StatefulFileReader statefulFileReader = new StatefulFileReader(
             Paths.get(statesStore),
             consumerSupplier
         );
+
         // Start a new thread for all logfile watchers
         for (String logfile : logfiles) {
-            if(logfile == null) {
-                LOGGER.error("Found null logfile, can't continue. Check configuration json for trailing commas?");
-                return;
-            }
             Thread thread = new Thread(() -> {
                 LOGGER.debug(
                         "Starting new DirectoryEventWatcher thread on directory '{}' with pattern '{}'",
