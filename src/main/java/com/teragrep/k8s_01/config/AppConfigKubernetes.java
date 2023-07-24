@@ -57,4 +57,13 @@ public class AppConfigKubernetes {
     public String toString() {
         return new Gson().toJson(this);
     }
+
+    public boolean validateLogfiles() {
+        for (String logfile : logfiles) {
+            if (logfile == null) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

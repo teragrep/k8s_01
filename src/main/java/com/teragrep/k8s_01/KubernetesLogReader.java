@@ -109,14 +109,11 @@ public class KubernetesLogReader {
         // consumer supplier, returns always the same instance
         K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool);
 
-        String[] logfiles = appConfig.getKubernetes().getLogfiles();
-        for (String logfile : logfiles) {
-            LOGGER.debug("Checking if {} is not null", logfile);
-            if (logfile == null) {
-                LOGGER.error("Found null logfile, can't continue. Check configuration json for trailing commas?");
-                return;
-            }
+        if(!appConfig.getKubernetes().validateLogfiles()){
+            LOGGER.error("Found null logfile definition in configuration file, expected string");
+            return;
         }
+        String[] logfiles = appConfig.getKubernetes().getLogfiles();
         LOGGER.debug(
                 "Monitored logfiles: {}",
                 Arrays.toString(logfiles)
