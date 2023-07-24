@@ -40,6 +40,7 @@ import java.time.format.DateTimeParseException;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Must be thread-safe
@@ -53,6 +54,10 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private final BlockingQueue<RelpOutput> relpOutputPool;
     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxx");
     private final ZoneId timezoneId;
+
+    // Validators
+    private static final Pattern hostnamePattern = Pattern.compile("^[a-zA-Z0-9.-]+$"); // Not perfect but filters basically all mistakes
+    private static final Pattern appnamePattern = Pattern.compile("^[\\x21-\\x7e]+$"); // DEC 33 - DEC 126 as specified in RFC5424
 
     K8SConsumer(
             AppConfig appConfig,
@@ -194,6 +199,59 @@ public class K8SConsumer implements Consumer<FileRecord> {
                         appConfig.getKubernetes().getLabels().getAppname().getFallback()
                 );
             }
+            hostname = appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname;
+            appname = appConfig.getKubernetes().getLabels().getAppname().getPrefix() + appname;
+
+            if(!hostnamePattern.matcher(hostname).matches()) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected hostname <[%s]> from pod <[%s]/[%s]> on container <%s> contains invalid characters, can't continue",
+                                uuid,
+                                hostname,
+                                namespace,
+                                podname,
+                                containerId
+                        )
+                );
+            }
+
+            if(hostname.length() >= 255) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected hostname <[%s]...> from pod <[%s]/[%s]> on container <%s> is too long, can't continue",
+                                uuid,
+                                hostname.substring(0,30),
+                                namespace,
+                                podname,
+                                containerId
+                        )
+                );
+            }
+
+            if(!appnamePattern.matcher(appname).matches()) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected appname <[%s]> from pod <[%s]/[%s]> on container <%s> contains invalid characters, can't continue",
+                                uuid,
+                                appname,
+                                namespace,
+                                podname,
+                                containerId
+                        )
+                );
+            }
+            if(appname.length() > 48) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected appname <[%s]...> from pod <[%s]/[%s]> on container <%s> is too long, can't continue",
+                                uuid,
+                                appname.substring(0,30),
+                                namespace,
+                                podname,
+                                containerId
+                        )
+                );
+            }
 
             if(LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
@@ -225,8 +283,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
             SyslogMessage syslog = new SyslogMessage()
                     .withTimestamp(timestamp, true)
                     .withSeverity(Severity.WARNING)
-                    .withHostname(appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname)
-                    .withAppName(appConfig.getKubernetes().getLabels().getAppname().getPrefix() + appname)
+                    .withHostname(hostname)
+                    .withAppName(appname)
                     .withFacility(Facility.USER)
                     .withSDElement(SDMetadata)
                     .withMsg(new String(record.getRecord()));
