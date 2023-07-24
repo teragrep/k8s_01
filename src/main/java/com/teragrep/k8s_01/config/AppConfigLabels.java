@@ -22,13 +22,13 @@ import com.google.gson.Gson;
 /* POJO representing the .kubernetes.labels part of config.json */
 public class AppConfigLabels implements BaseConfig {
     private AppConfigLabel hostname;
-    private AppConfigLabel appname;
+    private AppConfigLabel appname; // Lowercase instead of appName because it comes from json and needs to be case-sensitive
 
     public AppConfigLabel getHostname() {
         return hostname;
     }
 
-    public AppConfigLabel getAppname() {
+    public AppConfigLabel getAppName() {
         return appname;
     }
 

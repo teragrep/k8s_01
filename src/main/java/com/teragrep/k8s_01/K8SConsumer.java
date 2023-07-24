@@ -57,7 +57,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
 
     // Validators
     private static final Pattern hostnamePattern = Pattern.compile("^[a-zA-Z0-9.-]+$"); // Not perfect but filters basically all mistakes
-    private static final Pattern appnamePattern = Pattern.compile("^[\\x21-\\x7e]+$"); // DEC 33 - DEC 126 as specified in RFC5424
+    private static final Pattern appNamePattern = Pattern.compile("^[\\x21-\\x7e]+$"); // DEC 33 - DEC 126 as specified in RFC5424
 
     K8SConsumer(
             AppConfig appConfig,
@@ -177,30 +177,30 @@ public class K8SConsumer implements Consumer<FileRecord> {
             JsonObject dockerMetadata = new JsonObject();
             dockerMetadata.addProperty("container_id", containerId);
 
-            // Handle hostname and appname, use fallback values when labels are empty or if label not found
+            // Handle hostname and appName, use fallback values when labels are empty or if label not found
             String hostname;
-            String appname;
+            String appName;
             if(podMetadataContainer.getLabels() == null) {
                 LOGGER.warn(
-                        "[{}] Can't resolve metadata and/or labels for container <{}>, using fallback values for hostname and appname",
+                        "[{}] Can't resolve metadata and/or labels for container <{}>, using fallback values for hostname and appName",
                         uuid,
                         containerId
                 );
                 hostname = appConfig.getKubernetes().getLabels().getHostname().getFallback();
-                appname = appConfig.getKubernetes().getLabels().getAppname().getFallback();
+                appName = appConfig.getKubernetes().getLabels().getAppName().getFallback();
             }
             else {
                 hostname = podMetadataContainer.getLabels().getOrDefault(
                         appConfig.getKubernetes().getLabels().getHostname().getLabel(log.getStream()),
                         appConfig.getKubernetes().getLabels().getHostname().getFallback()
                 );
-                appname = podMetadataContainer.getLabels().getOrDefault(
-                        appConfig.getKubernetes().getLabels().getAppname().getLabel(log.getStream()),
-                        appConfig.getKubernetes().getLabels().getAppname().getFallback()
+                appName = podMetadataContainer.getLabels().getOrDefault(
+                        appConfig.getKubernetes().getLabels().getAppName().getLabel(log.getStream()),
+                        appConfig.getKubernetes().getLabels().getAppName().getFallback()
                 );
             }
             hostname = appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname;
-            appname = appConfig.getKubernetes().getLabels().getAppname().getPrefix() + appname;
+            appName = appConfig.getKubernetes().getLabels().getAppName().getPrefix() + appName;
 
             if(!hostnamePattern.matcher(hostname).matches()) {
                 throw new RuntimeException(
@@ -228,24 +228,24 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 );
             }
 
-            if(!appnamePattern.matcher(appname).matches()) {
+            if(!appNamePattern.matcher(appName).matches()) {
                 throw new RuntimeException(
                         String.format(
-                                "[%s] Detected appname <[%s]> from pod <[%s]/[%s]> on container <%s> contains invalid characters, can't continue",
+                                "[%s] Detected appName <[%s]> from pod <[%s]/[%s]> on container <%s> contains invalid characters, can't continue",
                                 uuid,
-                                appname,
+                                appName,
                                 namespace,
                                 podname,
                                 containerId
                         )
                 );
             }
-            if(appname.length() > 48) {
+            if(appName.length() > 48) {
                 throw new RuntimeException(
                         String.format(
-                                "[%s] Detected appname <[%s]...> from pod <[%s]/[%s]> on container <%s> is too long, can't continue",
+                                "[%s] Detected appName <[%s]...> from pod <[%s]/[%s]> on container <%s> is too long, can't continue",
                                 uuid,
-                                appname.substring(0,30),
+                                appName.substring(0,30),
                                 namespace,
                                 podname,
                                 containerId
@@ -257,7 +257,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 LOGGER.debug(
                         "[{}] Resolved message to be {}@{} from {}/{} generated at {}",
                         uuid,
-                        appname,
+                        appName,
                         hostname,
                         namespace,
                         podname,
@@ -284,7 +284,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withTimestamp(timestamp, true)
                     .withSeverity(Severity.WARNING)
                     .withHostname(hostname)
-                    .withAppName(appname)
+                    .withAppName(appName)
                     .withFacility(Facility.USER)
                     .withSDElement(SDMetadata)
                     .withMsg(new String(record.getRecord()));
