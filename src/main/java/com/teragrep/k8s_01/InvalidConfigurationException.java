@@ -18,7 +18,19 @@
 package com.teragrep.k8s_01;
 
 public class InvalidConfigurationException extends Exception {
+    public InvalidConfigurationException() {
+        super();
+    }
+
     public InvalidConfigurationException(String message) {
         super(message);
+    }
+
+    public InvalidConfigurationException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
+
+    public InvalidConfigurationException(Throwable throwable) {
+        super(throwable);
     }
 }
