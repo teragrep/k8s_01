@@ -42,6 +42,7 @@ public class KubernetesLogReader {
         AppConfig appConfig;
         try {
             appConfig = gson.fromJson(new FileReader("etc/config.json"), AppConfig.class);
+            appConfig.validate();
         }
         catch (FileNotFoundException e) {
             LOGGER.error(
@@ -53,6 +54,13 @@ public class KubernetesLogReader {
         catch (JsonParseException e) {
             LOGGER.error(
                     "Can't parse config 'etc/config.json':",
+                    e
+            );
+            return;
+        }
+        catch (InvalidConfigurationException e) {
+            LOGGER.error(
+                    "Failed to validate config 'etc/config.json':",
                     e
             );
             return;
@@ -108,23 +116,25 @@ public class KubernetesLogReader {
 
         // consumer supplier, returns always the same instance
         K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool);
-
         String[] logfiles = appConfig.getKubernetes().getLogfiles();
         LOGGER.debug(
                 "Monitored logfiles: {}",
                 Arrays.toString(logfiles)
         );
+
         List<Thread> threads = new ArrayList<>();
         String statesStore = System.getProperty("user.dir") + "/var";
         LOGGER.debug(
                 "Using {} as statestore",
                 statesStore
         );
+
         // FIXME: VERIFY: SFR is not in try-with-resources block as it will have weird behaviour with threads.
         StatefulFileReader statefulFileReader = new StatefulFileReader(
             Paths.get(statesStore),
             consumerSupplier
         );
+
         // Start a new thread for all logfile watchers
         for (String logfile : logfiles) {
             Thread thread = new Thread(() -> {

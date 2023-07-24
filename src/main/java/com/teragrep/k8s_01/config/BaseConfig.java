@@ -17,29 +17,8 @@
 
 package com.teragrep.k8s_01.config;
 
-import com.google.gson.Gson;
 import com.teragrep.k8s_01.InvalidConfigurationException;
 
-public class AppConfigMetrics implements BaseConfig {
-    public Integer getPort() {
-        return port;
-    }
-
-    private Integer port;
-
-    @Override
-    public String toString() {
-        return new Gson().toJson(this);
-    }
-
-    @Override
-    public void validate() throws InvalidConfigurationException {
-        if (port == null) {
-            throw new InvalidConfigurationException("port not found or is null in metrics config object");
-        }
-
-        if(port < 1 || port > 65535) {
-            throw new InvalidConfigurationException("Metrics port is invalid, expected integer between 1 and 65535");
-        }
-    }
+public interface BaseConfig {
+    public void validate() throws InvalidConfigurationException;
 }

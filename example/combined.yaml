@@ -42,6 +42,7 @@ data:
       "kubernetes": {
         "logdir": "/var/log/containers",
         "url": "https://127.0.0.1:8443",
+        "timezone": "Europe/Helsinki",
         "cacheExpireInterval": 300,
         "cacheMaxEntries": 4096,
         "labels": {
@@ -104,7 +105,7 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-2t5785hm6f
+  name: app-config-58dh7f727h
 ---
 apiVersion: v1
 data:
@@ -271,7 +272,7 @@ spec:
   terminationGracePeriodSeconds: 0
   volumes:
   - configMap:
-      name: app-config-2t5785hm6f
+      name: app-config-58dh7f727h
     name: app-config
   - hostPath:
       path: /var/log/containers

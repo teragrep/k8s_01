@@ -36,9 +36,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Must be thread-safe
@@ -52,6 +54,10 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private final BlockingQueue<RelpOutput> relpOutputPool;
     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxx");
     private final ZoneId timezoneId;
+
+    // Validators
+    private static final Pattern hostnamePattern = Pattern.compile("^[a-zA-Z0-9.-]+$"); // Not perfect but filters basically all mistakes
+    private static final Pattern appNamePattern = Pattern.compile("^[\\x21-\\x7e]+$"); // DEC 33 - DEC 126 as specified in RFC5424
 
     K8SConsumer(
             AppConfig appConfig,
@@ -131,7 +137,26 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     )
                 );
             }
-            Instant instant = Instant.parse(log.getTimestamp());
+            Instant instant;
+            try {
+                instant = Instant.parse(log.getTimestamp());
+            }
+            catch(DateTimeParseException e) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Can't parse timestamp <%s> properly for event from pod <%s/%s> on container <%s> in file %s/%s at offset %s: ",
+                                uuid,
+                                log.getTimestamp(),
+                                namespace,
+                                podname,
+                                containerId,
+                                record.getPath(),
+                                record.getFilename(),
+                                record.getStartOffset()
+                        ),
+                        e
+                );
+            }
             ZonedDateTime zdt = instant.atZone(timezoneId);
             String timestamp = zdt.format(format);
 
@@ -152,26 +177,79 @@ public class K8SConsumer implements Consumer<FileRecord> {
             JsonObject dockerMetadata = new JsonObject();
             dockerMetadata.addProperty("container_id", containerId);
 
-            // Handle hostname and appname, use fallback values when labels are empty or if label not found
+            // Handle hostname and appName, use fallback values when labels are empty or if label not found
             String hostname;
-            String appname;
+            String appName;
             if(podMetadataContainer.getLabels() == null) {
                 LOGGER.warn(
-                        "[{}] Can't resolve metadata and/or labels for container <{}>, using fallback values for hostname and appname",
+                        "[{}] Can't resolve metadata and/or labels for container <{}>, using fallback values for hostname and appName",
                         uuid,
                         containerId
                 );
                 hostname = appConfig.getKubernetes().getLabels().getHostname().getFallback();
-                appname = appConfig.getKubernetes().getLabels().getAppname().getFallback();
+                appName = appConfig.getKubernetes().getLabels().getAppName().getFallback();
             }
             else {
                 hostname = podMetadataContainer.getLabels().getOrDefault(
                         appConfig.getKubernetes().getLabels().getHostname().getLabel(log.getStream()),
                         appConfig.getKubernetes().getLabels().getHostname().getFallback()
                 );
-                appname = podMetadataContainer.getLabels().getOrDefault(
-                        appConfig.getKubernetes().getLabels().getAppname().getLabel(log.getStream()),
-                        appConfig.getKubernetes().getLabels().getAppname().getFallback()
+                appName = podMetadataContainer.getLabels().getOrDefault(
+                        appConfig.getKubernetes().getLabels().getAppName().getLabel(log.getStream()),
+                        appConfig.getKubernetes().getLabels().getAppName().getFallback()
+                );
+            }
+            hostname = appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname;
+            appName = appConfig.getKubernetes().getLabels().getAppName().getPrefix() + appName;
+
+            if(!hostnamePattern.matcher(hostname).matches()) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected hostname <[%s]> from pod <[%s]/[%s]> on container <%s> contains invalid characters, can't continue",
+                                uuid,
+                                hostname,
+                                namespace,
+                                podname,
+                                containerId
+                        )
+                );
+            }
+
+            if(hostname.length() >= 255) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected hostname <[%s]...> from pod <[%s]/[%s]> on container <%s> is too long, can't continue",
+                                uuid,
+                                hostname.substring(0,30),
+                                namespace,
+                                podname,
+                                containerId
+                        )
+                );
+            }
+
+            if(!appNamePattern.matcher(appName).matches()) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected appName <[%s]> from pod <[%s]/[%s]> on container <%s> contains invalid characters, can't continue",
+                                uuid,
+                                appName,
+                                namespace,
+                                podname,
+                                containerId
+                        )
+                );
+            }
+            if(appName.length() > 48) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Detected appName <[%s]...> from pod <[%s]/[%s]> on container <%s> is too long, can't continue",
+                                uuid,
+                                appName.substring(0,30),
+                                namespace,
+                                podname,
+                                containerId
+                        )
                 );
             }
 
@@ -179,7 +257,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 LOGGER.debug(
                         "[{}] Resolved message to be {}@{} from {}/{} generated at {}",
                         uuid,
-                        appname,
+                        appName,
                         hostname,
                         namespace,
                         podname,
@@ -205,8 +283,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
             SyslogMessage syslog = new SyslogMessage()
                     .withTimestamp(timestamp, true)
                     .withSeverity(Severity.WARNING)
-                    .withHostname(appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname)
-                    .withAppName(appConfig.getKubernetes().getLabels().getAppname().getPrefix() + appname)
+                    .withHostname(hostname)
+                    .withAppName(appName)
                     .withFacility(Facility.USER)
                     .withSDElement(SDMetadata)
                     .withMsg(new String(record.getRecord()));

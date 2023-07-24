@@ -18,22 +18,38 @@
 package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
+import com.teragrep.k8s_01.InvalidConfigurationException;
+
+import java.util.regex.Pattern;
 
 /* POJO representing the .kubernetes.labels part of config.json */
-public class AppConfigLabels {
+public class AppConfigLabels implements BaseConfig {
     private AppConfigLabel hostname;
-    private AppConfigLabel appname;
+    private AppConfigLabel appname; // Lowercase instead of appName because it comes from json and needs to be case-sensitive
 
     public AppConfigLabel getHostname() {
         return hostname;
     }
 
-    public AppConfigLabel getAppname() {
+    public AppConfigLabel getAppName() {
         return appname;
     }
 
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    @Override
+    public void validate() throws InvalidConfigurationException {
+        if(hostname == null) {
+            throw new InvalidConfigurationException("hostname not found or is null in labels config object");
+        }
+        hostname.validate();
+
+        if(appname == null) {
+            throw new InvalidConfigurationException("appname not found or is null in labels config object");
+        }
+        appname.validate();
     }
 }
