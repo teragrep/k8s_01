@@ -22,19 +22,15 @@ import com.teragrep.k8s_01.InvalidConfigurationException;
 
 /* POJO representing the main config.json */
 public class AppConfig implements BaseConfig {
-    private AppConfigKubernetes kubernetes;
-
+    private AppConfigMetrics metrics;
     public AppConfigMetrics getMetrics() {
         return metrics;
     }
-
-    private AppConfigMetrics metrics;
-    private AppConfigRelp relp;
-
+    private AppConfigKubernetes kubernetes;
     public AppConfigKubernetes getKubernetes() {
         return kubernetes;
     }
-
+    private AppConfigRelp relp;
     public AppConfigRelp getRelp() {
         return relp;
     }
@@ -46,8 +42,19 @@ public class AppConfig implements BaseConfig {
 
     @Override
     public void validate() throws InvalidConfigurationException {
+        if(metrics == null) {
+            throw new InvalidConfigurationException("metrics object not found or is null in main config object");
+        }
         getMetrics().validate();
+
+        if(kubernetes == null) {
+            throw new InvalidConfigurationException("kubernetes object not found or is null in main config object");
+        }
         getKubernetes().validate();
+
+        if(relp == null) {
+            throw new InvalidConfigurationException("relp object no found or is null in main config object");
+        }
         getRelp().validate();
     }
 }

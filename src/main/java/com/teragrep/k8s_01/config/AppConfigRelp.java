@@ -23,38 +23,38 @@ import com.teragrep.k8s_01.InvalidConfigurationException;
 /* POJO representing the .relp part of config.json */
 public class AppConfigRelp implements BaseConfig {
     private String target;
-    private int port;
-    private int connectionTimeout;
-    private int readTimeout;
-    private int writeTimeout;
-    private int reconnectInterval;
-    private int outputThreads;
+    private Integer port;
+    private Integer connectionTimeout;
+    private Integer readTimeout;
+    private Integer writeTimeout;
+    private Integer reconnectInterval;
+    private Integer outputThreads;
 
     public String getTarget() {
         return target;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 
-    public int getConnectionTimeout() {
+    public Integer getConnectionTimeout() {
         return connectionTimeout;
     }
 
-    public int getReadTimeout() {
+    public Integer getReadTimeout() {
         return readTimeout;
     }
 
-    public int getWriteTimeout() {
+    public Integer getWriteTimeout() {
         return writeTimeout;
     }
 
-    public int getReconnectInterval() {
+    public Integer getReconnectInterval() {
         return reconnectInterval;
     }
 
-    public int getOutputThreads() {
+    public Integer getOutputThreads() {
         return outputThreads;
     }
 
@@ -65,17 +65,40 @@ public class AppConfigRelp implements BaseConfig {
 
     @Override
     public void validate() throws InvalidConfigurationException {
+        if(target == null) {
+            throw new InvalidConfigurationException("target not found or is null in relp config object");
+        }
+
+        if(port == null) {
+            throw new InvalidConfigurationException("port not found or is null in relp config object");
+        }
         if(port < 1 || port > 65535) {
             throw new InvalidConfigurationException("Relp port is invalid, expected integer between 1 and 65535");
+        }
+
+        if(connectionTimeout == null) {
+            throw new InvalidConfigurationException("connectionTimeout not found or is null in relp config object");
         }
         if(connectionTimeout < 0) {
             throw new InvalidConfigurationException("Relp connection timeout is invalid, expected positive integer");
         }
+
+        if(readTimeout == null) {
+            throw new InvalidConfigurationException("readTimeout not found or is null in relp config object");
+        }
         if(readTimeout < 0) {
             throw new InvalidConfigurationException("Relp read timeout is invalid, expected positive integer");
         }
+
+        if(writeTimeout == null) {
+            throw new InvalidConfigurationException("writeTimeout not found or is null in relp config object");
+        }
         if(writeTimeout < 0) {
             throw new InvalidConfigurationException("Relp write timeout is invalid, expected positive integer");
+        }
+
+        if(outputThreads == null) {
+            throw new InvalidConfigurationException("outputThreads not found or is null in relp config object");
         }
         if(outputThreads <= 0) {
             throw new InvalidConfigurationException("Relp output threads is invalid, expected >0");

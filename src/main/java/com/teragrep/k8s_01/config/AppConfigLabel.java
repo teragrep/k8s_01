@@ -20,12 +20,14 @@ package com.teragrep.k8s_01.config;
 import com.google.gson.Gson;
 import com.teragrep.k8s_01.InvalidConfigurationException;
 
+import java.util.regex.Pattern;
+
 /* POJO representing the .kubernetes.labels.{hostname,appname} part of config.json */
 public class AppConfigLabel implements BaseConfig {
     private String prefix;
     private String fallback;
     private String labelStdout;
-    private String labelStderr;
+    private String labelStderr; // Can be null, is handled in getLabel
 
     public String getPrefix() {
         return prefix;
@@ -49,8 +51,16 @@ public class AppConfigLabel implements BaseConfig {
 
     @Override
     public void validate() throws InvalidConfigurationException {
+        if(prefix == null) {
+            throw new InvalidConfigurationException("prefix not found or is null in label config object");
+        }
+
+        if(fallback == null) {
+            throw new InvalidConfigurationException("fallback not found or is null in label config object");
+        }
+
         if(labelStdout == null) {
-            throw new InvalidConfigurationException("labelStdout was null, excepted a string");
+            throw new InvalidConfigurationException("labelStdout not found or is null in label config object");
         }
     }
 }

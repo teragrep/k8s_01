@@ -18,6 +18,9 @@
 package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
+import com.teragrep.k8s_01.InvalidConfigurationException;
+
+import java.util.regex.Pattern;
 
 /* POJO representing the .kubernetes.labels part of config.json */
 public class AppConfigLabels implements BaseConfig {
@@ -38,7 +41,15 @@ public class AppConfigLabels implements BaseConfig {
     }
 
     @Override
-    public void validate() {
+    public void validate() throws InvalidConfigurationException {
+        if(hostname == null) {
+            throw new InvalidConfigurationException("hostname not found or is null in labels config object");
+        }
+        hostname.validate();
 
+        if(appname == null) {
+            throw new InvalidConfigurationException("appname not found or is null in labels config object");
+        }
+        appname.validate();
     }
 }

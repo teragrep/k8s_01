@@ -22,15 +22,15 @@ import com.teragrep.k8s_01.InvalidConfigurationException;
 
 /* POJO representing the .kubernetes part of config.json */
 public class AppConfigKubernetes implements BaseConfig {
-    private int cacheExpireInterval;
-    private int cacheMaxEntries;
+    private Integer cacheExpireInterval;
+    private Integer cacheMaxEntries;
     private String logdir;
     private AppConfigLabels labels;
     private String[] logfiles;
     private String url;
     private String timezone;
 
-    public int getCacheExpireInterval() {
+    public Integer getCacheExpireInterval() {
         return cacheExpireInterval;
     }
 
@@ -49,7 +49,7 @@ public class AppConfigKubernetes implements BaseConfig {
     public String getUrl() {
         return url;
     }
-    public int getCacheMaxEntries() {
+    public Integer getCacheMaxEntries() {
         return cacheMaxEntries;
     }
     public String getTimezone() { return timezone; }
@@ -61,11 +61,35 @@ public class AppConfigKubernetes implements BaseConfig {
 
     @Override
     public void validate() throws InvalidConfigurationException {
+        if(cacheExpireInterval == null) {
+            throw new InvalidConfigurationException("cacheExpireInterval not found or is null in kubernetes config object");
+        }
+        if(cacheMaxEntries == null) {
+            throw new InvalidConfigurationException("cacheMaxEntries not found or is null in kubernetes config object");
+        }
+        if(logdir == null) {
+            throw new InvalidConfigurationException("logdir not found or is null in kubernetes config object");
+        }
+        if(labels == null) {
+            throw new InvalidConfigurationException("labels not found or is null in kubernetes config object");
+        }
         labels.validate();
+
+        if(logfiles == null) {
+            throw new InvalidConfigurationException("logfiles not found or is null in kubernetes config object");
+        }
         for (String logfile : logfiles) {
             if (logfile == null) {
                 throw new InvalidConfigurationException("Found null logfile definition in configuration file, expected string");
             }
+        }
+
+        if(url == null) {
+            throw new InvalidConfigurationException("url not found or is null in kubernetes config object");
+        }
+
+        if(timezone == null) {
+            throw new InvalidConfigurationException("timezone not found or is null in kubernetes config object");
         }
     }
 }
