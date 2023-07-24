@@ -18,9 +18,10 @@
 package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
+import com.teragrep.k8s_01.InvalidConfigurationException;
 
 /* POJO representing the main config.json */
-public class AppConfig {
+public class AppConfig implements BaseConfig {
     private AppConfigKubernetes kubernetes;
 
     public AppConfigMetrics getMetrics() {
@@ -41,5 +42,12 @@ public class AppConfig {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    @Override
+    public void validate() throws InvalidConfigurationException {
+        getMetrics().validate();
+        getKubernetes().validate();
+        getRelp().validate();
     }
 }

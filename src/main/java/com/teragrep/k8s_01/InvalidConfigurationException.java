@@ -15,30 +15,10 @@
    limitations under the License.
 */
 
-package com.teragrep.k8s_01.config;
+package com.teragrep.k8s_01;
 
-import com.google.gson.Gson;
-
-/* POJO representing the .kubernetes.labels part of config.json */
-public class AppConfigLabels implements BaseConfig {
-    private AppConfigLabel hostname;
-    private AppConfigLabel appname;
-
-    public AppConfigLabel getHostname() {
-        return hostname;
-    }
-
-    public AppConfigLabel getAppname() {
-        return appname;
-    }
-
-    @Override
-    public String toString() {
-        return new Gson().toJson(this);
-    }
-
-    @Override
-    public void validate() {
-
+public class InvalidConfigurationException extends Exception {
+    public InvalidConfigurationException(String message) {
+        super(message);
     }
 }

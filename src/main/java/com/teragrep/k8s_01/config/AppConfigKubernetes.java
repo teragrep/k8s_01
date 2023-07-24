@@ -18,9 +18,10 @@
 package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
+import com.teragrep.k8s_01.InvalidConfigurationException;
 
 /* POJO representing the .kubernetes part of config.json */
-public class AppConfigKubernetes {
+public class AppConfigKubernetes implements BaseConfig {
     private int cacheExpireInterval;
     private int cacheMaxEntries;
     private String logdir;
@@ -58,12 +59,13 @@ public class AppConfigKubernetes {
         return new Gson().toJson(this);
     }
 
-    public boolean validateLogfiles() {
+    @Override
+    public void validate() throws InvalidConfigurationException {
+        labels.validate();
         for (String logfile : logfiles) {
             if (logfile == null) {
-                return false;
+                throw new InvalidConfigurationException("Found null logfile definition in configuration file, expected string");
             }
         }
-        return true;
     }
 }

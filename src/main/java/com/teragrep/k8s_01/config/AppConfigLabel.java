@@ -18,9 +18,10 @@
 package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
+import com.teragrep.k8s_01.InvalidConfigurationException;
 
 /* POJO representing the .kubernetes.labels.{hostname,appname} part of config.json */
-public class AppConfigLabel {
+public class AppConfigLabel implements BaseConfig {
     private String prefix;
     private String fallback;
     private String labelStdout;
@@ -44,5 +45,12 @@ public class AppConfigLabel {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    @Override
+    public void validate() throws InvalidConfigurationException {
+        if(labelStdout == null) {
+            throw new InvalidConfigurationException("labelStdout was null, excepted a string");
+        }
     }
 }

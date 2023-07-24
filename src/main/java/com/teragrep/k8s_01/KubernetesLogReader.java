@@ -42,6 +42,7 @@ public class KubernetesLogReader {
         AppConfig appConfig;
         try {
             appConfig = gson.fromJson(new FileReader("etc/config.json"), AppConfig.class);
+            appConfig.validate();
         }
         catch (FileNotFoundException e) {
             LOGGER.error(
@@ -53,6 +54,13 @@ public class KubernetesLogReader {
         catch (JsonParseException e) {
             LOGGER.error(
                     "Can't parse config 'etc/config.json':",
+                    e
+            );
+            return;
+        }
+        catch (InvalidConfigurationException e) {
+            LOGGER.error(
+                    "Failed to validate config 'etc/config.json':",
                     e
             );
             return;
@@ -108,11 +116,6 @@ public class KubernetesLogReader {
 
         // consumer supplier, returns always the same instance
         K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool);
-
-        if(!appConfig.getKubernetes().validateLogfiles()){
-            LOGGER.error("Found null logfile definition in configuration file, expected string");
-            return;
-        }
         String[] logfiles = appConfig.getKubernetes().getLogfiles();
         LOGGER.debug(
                 "Monitored logfiles: {}",

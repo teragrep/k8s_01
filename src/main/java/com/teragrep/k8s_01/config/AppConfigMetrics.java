@@ -19,7 +19,7 @@ package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
 
-public class AppConfigMetrics {
+public class AppConfigMetrics implements BaseConfig {
     public int getPort() {
         return port;
     }
@@ -29,5 +29,10 @@ public class AppConfigMetrics {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    @Override
+    public void validate() {
+
     }
 }

@@ -17,28 +17,8 @@
 
 package com.teragrep.k8s_01.config;
 
-import com.google.gson.Gson;
+import com.teragrep.k8s_01.InvalidConfigurationException;
 
-/* POJO representing the .kubernetes.labels part of config.json */
-public class AppConfigLabels implements BaseConfig {
-    private AppConfigLabel hostname;
-    private AppConfigLabel appname;
-
-    public AppConfigLabel getHostname() {
-        return hostname;
-    }
-
-    public AppConfigLabel getAppname() {
-        return appname;
-    }
-
-    @Override
-    public String toString() {
-        return new Gson().toJson(this);
-    }
-
-    @Override
-    public void validate() {
-
-    }
+public interface BaseConfig {
+    public void validate() throws InvalidConfigurationException;
 }
