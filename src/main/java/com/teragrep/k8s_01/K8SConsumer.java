@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
@@ -131,11 +132,14 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     )
                 );
             }
-            Instant instant = Instant.parse(log.getTimestamp());
-            if(instant == null) {
+            Instant instant;
+            try {
+                instant = Instant.parse(log.getTimestamp());
+            }
+            catch(DateTimeParseException e) {
                 throw new RuntimeException(
                         String.format(
-                                "[%s] Can't parse timestamp <%s> properly for event from pod <%s/%s> on container <%s> in file %s/%s at offset %s",
+                                "[%s] Can't parse timestamp <%s> properly for event from pod <%s/%s> on container <%s> in file %s/%s at offset %s: ",
                                 uuid,
                                 log.getTimestamp(),
                                 namespace,
@@ -144,7 +148,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
                                 record.getPath(),
                                 record.getFilename(),
                                 record.getStartOffset()
-                        )
+                        ),
+                        e
                 );
             }
             ZonedDateTime zdt = instant.atZone(timezoneId);
