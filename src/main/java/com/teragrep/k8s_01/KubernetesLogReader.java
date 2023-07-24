@@ -127,6 +127,10 @@ public class KubernetesLogReader {
         );
         // Start a new thread for all logfile watchers
         for (String logfile : logfiles) {
+            if(logfile == null) {
+                LOGGER.error("Found null logfile, can't continue. Check configuration json for trailing commas?");
+                return;
+            }
             Thread thread = new Thread(() -> {
                 LOGGER.debug(
                         "Starting new DirectoryEventWatcher thread on directory '{}' with pattern '{}'",
