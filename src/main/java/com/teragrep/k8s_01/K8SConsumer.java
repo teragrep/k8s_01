@@ -132,6 +132,21 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 );
             }
             Instant instant = Instant.parse(log.getTimestamp());
+            if(instant == null) {
+                throw new RuntimeException(
+                        String.format(
+                                "[%s] Can't parse timestamp <%s> properly for event from pod <%s/%s> on container <%s> in file %s/%s at offset %s",
+                                uuid,
+                                log.getTimestamp(),
+                                namespace,
+                                podname,
+                                containerId,
+                                record.getPath(),
+                                record.getFilename(),
+                                record.getStartOffset()
+                        )
+                );
+            }
             ZonedDateTime zdt = instant.atZone(timezoneId);
             String timestamp = zdt.format(format);
 
