@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -41,7 +42,13 @@ public class KubernetesLogReader {
     public static void main(String[] args) throws IOException {
         AppConfig appConfig;
         try {
-            appConfig = gson.fromJson(new FileReader("etc/config.json"), AppConfig.class);
+            appConfig = gson.fromJson(
+                    new InputStreamReader(
+                            new FileInputStream("etc/config.json"),
+                            StandardCharsets.UTF_8
+                    ),
+                    AppConfig.class
+            );
         }
         catch (FileNotFoundException e) {
             LOGGER.error(
