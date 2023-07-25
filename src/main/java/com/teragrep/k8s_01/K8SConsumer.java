@@ -32,6 +32,7 @@ import com.teragrep.rlo_13.FileRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -95,7 +96,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
             KubernetesLogFilePOJO log;
             try {
                 // We want to read the kubernetes log event into a POJO
-                log = gson.fromJson(new String(record.getRecord()), KubernetesLogFilePOJO.class);
+                log = gson.fromJson(new String(record.getRecord(), Charset.defaultCharset()), KubernetesLogFilePOJO.class);
             } catch (JsonParseException e) {
                 LOGGER.trace(
                         "[{}] Invalid syntax message: {}",
