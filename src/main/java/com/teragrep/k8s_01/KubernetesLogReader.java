@@ -42,7 +42,6 @@ public class KubernetesLogReader {
         AppConfig appConfig;
         try {
             appConfig = gson.fromJson(new FileReader("etc/config.json"), AppConfig.class);
-            appConfig.validate();
         }
         catch (FileNotFoundException e) {
             LOGGER.error(
@@ -58,16 +57,23 @@ public class KubernetesLogReader {
             );
             return;
         }
-        catch (InvalidConfigurationException e) {
+        catch (Exception e) {
             LOGGER.error(
-                    "Failed to validate config 'etc/config.json':",
+                    "Caught exception while handling config:",
                     e
             );
             return;
         }
-        catch (Exception e) {
+        if (appConfig == null) {
+            LOGGER.error("Unknown parsing failure happened with config 'etc/config.json', can't continue. Check if the configuration file is empty?");
+            return;
+        }
+        try {
+            appConfig.validate();
+        }
+        catch (InvalidConfigurationException e) {
             LOGGER.error(
-                    "Unknown exception while handling config:",
+                    "Failed to validate config 'etc/config.json':",
                     e
             );
             return;
@@ -184,5 +190,6 @@ public class KubernetesLogReader {
             }
         }
         prometheusMetrics.close();
+        statefulFileReader.close();
     }
 }
