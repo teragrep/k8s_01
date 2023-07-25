@@ -303,7 +303,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withAppName(appName)
                     .withFacility(Facility.USER)
                     .withSDElement(SDMetadata)
-                    .withMsg(new String(record.getRecord()));
+                    .withMsg(new String(record.getRecord(), Charset.defaultCharset()));
             try {
                 RelpOutput output = relpOutputPool.take();
                 output.send(syslog);
