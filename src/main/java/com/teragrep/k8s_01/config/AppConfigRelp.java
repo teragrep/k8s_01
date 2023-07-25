@@ -19,9 +19,41 @@ package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
 import com.teragrep.k8s_01.InvalidConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /* POJO representing the .relp part of config.json */
 public class AppConfigRelp implements BaseConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppConfigRelp.class);
+    public void handleOverrides() throws InvalidConfigurationException {
+        String relpTarget = System.getenv("K8S_01_RELP_TARGET");
+        if(relpTarget != null) {
+            LOGGER.info(
+                    "Found K8S_01_RELP_TARGET environment variable <[{}]>, using it relp target.",
+                    relpTarget
+            );
+            this.target = relpTarget;
+        }
+
+        String relpPortString = System.getenv("K8S_01_RELP_PORT");
+        if(relpPortString != null) {
+            int relpPort;
+            try {
+                relpPort = Integer.parseInt(relpPortString);
+            }
+            catch(NumberFormatException e) {
+                throw new InvalidConfigurationException(
+                        "Got invalid number for K8S_01_RELP_PORT: ",
+                        e
+                );
+            }
+            LOGGER.info(
+                    "Found K8S_01_RELP_PORT environment variable <[{}]>, using it relp port.",
+                    relpPort
+            );
+            this.port = relpPort;
+        }
+    }
     private String target;
     private Integer port;
     private Integer connectionTimeout;
