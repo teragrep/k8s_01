@@ -190,5 +190,6 @@ public class KubernetesLogReader {
             }
         }
         prometheusMetrics.close();
+        statefulFileReader.close();
     }
 }
