@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -42,15 +44,14 @@ public class KubernetesLogReader {
     public static void main(String[] args) throws IOException {
         AppConfig appConfig;
         try {
-            appConfig = gson.fromJson(
-                    new InputStreamReader(
-                            new FileInputStream("etc/config.json"),
-                            StandardCharsets.UTF_8
-                    ),
+            try(InputStreamReader isr = new InputStreamReader(Files.newInputStream(Paths.get("etc/config.json")))) {
+                appConfig = gson.fromJson(
+                    isr,
                     AppConfig.class
-            );
+                );
+            }
         }
-        catch (FileNotFoundException e) {
+        catch (NoSuchFileException | FileNotFoundException e) {
             LOGGER.error(
                     "Can't find config 'etc/config.json':",
                     e
