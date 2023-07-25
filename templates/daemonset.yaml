@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kubelogreader
+  namespace: {{.Values.namespace}}
+  labels:
+    app: k8s_01
+    host: kubelogreader
+spec:
+  selector:
+    matchLabels:
+      name: kubelogreader
+  template:
+    metadata:
+      labels:
+        name: kubelogreader
+    spec:
+      serviceAccount: kubelogreader
+      serviceAccountName: kubelogreader
+      volumes:
+        - configMap:
+            name: config
+          name: config
+        - persistentVolumeClaim:
+            claimName: statestore-pvc
+          name: statestore
+        - hostPath:
+            path: /var/log/containers
+            type: Directory
+          name: host-var-log-containers
+        - hostPath:
+            path: /var/log/pods
+            type: Directory
+          name: host-var-log-pods
+        - hostPath:
+            path: /var/lib/docker/containers
+            type: Directory
+          name: host-var-lib-docker-containers
+      containers:
+        - name: kubelogreader
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag}}"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: config
+              mountPath: /opt/teragrep/k8s_01/etc
+            - name: statestore
+              mountPath: /opt/teragrep/k8s_01/var
+            - name: host-var-log-containers
+              mountPath: /var/log/containers
+            - name: host-var-log-pods
+              mountPath: /var/log/pods
+            - name: host-var-lib-docker-containers
+              mountPath: /var/lib/docker/containers
+          command: ["/usr/bin/bash"]
+          args: ["-c", "cd /opt/teragrep/k8s_01 || exit 1; exec /usr/bin/java -Dlog4j2.configurationFile=file:/opt/teragrep/k8s_01/etc/log4j2.xml -jar lib/k8s_01.jar"]
