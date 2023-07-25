@@ -88,9 +88,6 @@ public class PrometheusMetrics {
         }
     }
 
-    static void setupDropWizard() {
-    }
-
     public void close() {
         try {
             LOGGER.info("Closing jettyserver");
