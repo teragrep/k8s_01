@@ -44,7 +44,7 @@ public class KubernetesLogReader {
     public static void main(String[] args) throws IOException {
         AppConfig appConfig;
         try {
-            try(InputStreamReader isr = new InputStreamReader(Files.newInputStream(Paths.get("etc/config.json")))) {
+            try(InputStreamReader isr = new InputStreamReader(Files.newInputStream(Paths.get("etc/config.json")), StandardCharsets.UTF_8)) {
                 appConfig = gson.fromJson(
                     isr,
                     AppConfig.class
