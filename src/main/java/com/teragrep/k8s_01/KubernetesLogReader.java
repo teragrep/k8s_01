@@ -59,7 +59,7 @@ public class KubernetesLogReader {
         }
         catch (Exception e) {
             LOGGER.error(
-                    "Unknown exception while handling config:",
+                    "Caught exception while handling config:",
                     e
             );
             return;
