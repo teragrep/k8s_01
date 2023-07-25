@@ -19,9 +19,22 @@ package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
 import com.teragrep.k8s_01.InvalidConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /* POJO representing the .kubernetes part of config.json */
 public class AppConfigKubernetes implements BaseConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppConfigKubernetes.class);
+    public void handleOverrides() {
+        String kubernetesUrl = System.getenv("K8S_01_KUBERNETES_URL");
+        if(kubernetesUrl != null) {
+            LOGGER.info(
+                    "Found K8S_01_KUBERNETES_URL environment variable <[{}]>, using it as kubernetes url.",
+                    kubernetesUrl
+            );
+            this.url = kubernetesUrl;
+        }
+    }
     private Integer cacheExpireInterval;
     private Integer cacheMaxEntries;
     private String logdir;

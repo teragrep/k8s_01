@@ -265,7 +265,7 @@ And also mount those volumes
       <snip>
       "volumeMounts": [
           {
-            "mountPath": "/config/",
+            "mountPath": "/opt/teragrep/k8s_01/etc",
             "name": "app-config"
           },
           {
@@ -295,7 +295,7 @@ And also mount those volumes
 }
 ----
 
-And start the k8s_01 image with for example the following arguments. It uses `KUBERNETES_SERVICE_HOST` with `KUBERNETES_SERVICE_PORT` environment variables to find out the API server, and `RELP_SERVICE_PORT_1601_TCP_ADDR` to find the port for the RELP target server.
+And start the k8s_01 image with for example the following arguments.
 
 [source,json]
 ----
@@ -304,9 +304,19 @@ And start the k8s_01 image with for example the following arguments. It uses `KU
 ],
 "args": [
   "-c",
-  "jq --arg host \"${KUBERNETES_SERVICE_HOST}\" --arg port \"${KUBERNETES_SERVICE_PORT}\" --arg target \"${RELP_SERVICE_PORT_1601_TCP_ADDR}\" '.relp.target=$target | .kubernetes.url=(\"https://\" + $host + \":\" + $port)' /config/..data/config.json > /opt/teragrep/k8s_01/etc/config.json; cd /opt/teragrep/k8s_01 || exit 1; java -Dlog4j2.configurationFile=file:/config/..data/log4j2.xml -jar lib/k8s_01.jar;"
+  "cd /opt/teragrep/k8s_01 || exit 1; java -Dlog4j2.configurationFile=file:etc/log4j2.xml -jar lib/k8s_01.jar;"
 ]
 ----
+
+### Overriding configurations with environment variables
+
+Currently supported:
+
+ - `K8S_01_RELP_TARGET` overwrites `.relp.target` from config.json
+
+ - `K8S_01_RELP_PORT` overwrites `.relp.port` from config.json
+
+ - `K8S_01_KUBERNETES_URL` overwrites `.kubernetes.url` from config.json
 
 ## Example test cluster usage
 

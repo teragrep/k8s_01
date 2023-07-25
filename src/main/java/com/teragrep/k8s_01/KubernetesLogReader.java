@@ -69,6 +69,8 @@ public class KubernetesLogReader {
             return;
         }
         try {
+            appConfig.getKubernetes().handleOverrides();
+            appConfig.getRelp().handleOverrides();
             appConfig.validate();
         }
         catch (InvalidConfigurationException e) {
