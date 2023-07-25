@@ -32,7 +32,7 @@ import com.teragrep.rlo_13.FileRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -96,12 +96,12 @@ public class K8SConsumer implements Consumer<FileRecord> {
             KubernetesLogFilePOJO log;
             try {
                 // We want to read the kubernetes log event into a POJO
-                log = gson.fromJson(new String(record.getRecord(), Charset.defaultCharset()), KubernetesLogFilePOJO.class);
+                log = gson.fromJson(new String(record.getRecord(), StandardCharsets.UTF_8), KubernetesLogFilePOJO.class);
             } catch (JsonParseException e) {
                 LOGGER.trace(
                         "[{}] Invalid syntax message: {}",
                         uuid,
-                        new String(record.getRecord(), Charset.defaultCharset())
+                        new String(record.getRecord(), StandardCharsets.UTF_8)
                 );
                 throw new RuntimeException(
                         String.format(
@@ -123,7 +123,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 LOGGER.debug(
                         "[{}] Can't parse this properly: {}",
                         uuid,
-                        new String(record.getRecord(), Charset.defaultCharset())
+                        new String(record.getRecord(), StandardCharsets.UTF_8)
                 );
                 throw new RuntimeException(
                     String.format(
@@ -303,7 +303,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withAppName(appName)
                     .withFacility(Facility.USER)
                     .withSDElement(SDMetadata)
-                    .withMsg(new String(record.getRecord(), Charset.defaultCharset()));
+                    .withMsg(new String(record.getRecord(), StandardCharsets.UTF_8));
             try {
                 RelpOutput output = relpOutputPool.take();
                 output.send(syslog);
