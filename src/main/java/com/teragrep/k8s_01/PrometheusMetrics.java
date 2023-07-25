@@ -35,8 +35,10 @@ import static com.codahale.metrics.MetricRegistry.name;
 public class PrometheusMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusMetrics.class);
     private final Server jettyServer;
+    private final JmxReporter jmxReporter;
     public PrometheusMetrics(int port) {
         LOGGER.info("Starting prometheus metrics server on port {}", port);
+
         // prometheus-exporter
         jettyServer = new Server(port);
         ServletContextHandler context = new ServletContextHandler();
@@ -46,18 +48,8 @@ public class PrometheusMetrics {
         MetricsServlet metricsServlet = new MetricsServlet();
         ServletHolder servletHolder = new ServletHolder(metricsServlet);
         context.addServlet(servletHolder, "/metrics");
-        setupDropWizard();
-        // Add metrics about CPU, JVM memory etc.
-        DefaultExports.initialize();
-        // Start the webserver.
-        try {
-            jettyServer.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    static void setupDropWizard() {
+        // Container for all metrics
         MetricRegistry metricRegistry = new MetricRegistry();
 
         // Totals
@@ -77,19 +69,33 @@ public class PrometheusMetrics {
         SharedMetricRegistries.add("default", metricRegistry);
 
         // Add to Prometheus metrics
-        CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry));
+        CollectorRegistry.defaultRegistry.register(
+                new DropwizardExports(metricRegistry)
+        );
 
         // Enable JMX listener
-        JmxReporter jmxReporter = JmxReporter.forRegistry(metricRegistry).build();
+        jmxReporter = JmxReporter.forRegistry(metricRegistry).build();
         jmxReporter.start();
+
+        // Add metrics about CPU, JVM memory etc.
+        DefaultExports.initialize();
+
+        // Start the webserver.
+        try {
+            jettyServer.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void close() {
-        LOGGER.info("Closing prometheus metrics server");
         try {
+            LOGGER.info("Closing jettyserver");
             jettyServer.stop();
+            LOGGER.info("Closing jmxReporter");
+            jmxReporter.stop();
         } catch (Exception e) {
-            LOGGER.error("Failed to stop jettyServer:", e);
+            LOGGER.error("Failed to stop jettyServer and/or jmxReporter:", e);
         }
     }
 }
