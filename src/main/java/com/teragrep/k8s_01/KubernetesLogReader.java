@@ -111,25 +111,6 @@ public class KubernetesLogReader {
             }
         }
 
-        // Graceful shutdown so Relp sessions are gracefully terminated
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.info("Shutting down.");
-            for(int i=1; i <= appConfig.getRelp().getOutputThreads(); i++) {
-                LOGGER.info(
-                        "Disconnecting relp thread #{}/{}",
-                        i,
-                        appConfig.getRelp().getOutputThreads()
-                );
-                RelpOutput output;
-                try {
-                    output = relpOutputPool.take();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                output.disconnect();
-            }
-        }));
-
         // consumer supplier, returns always the same instance
         K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool);
         String[] logfiles = appConfig.getKubernetes().getLogfiles();
@@ -150,6 +131,28 @@ public class KubernetesLogReader {
             Paths.get(statesStore),
             consumerSupplier
         );
+
+        // Graceful shutdown so Relp sessions are gracefully terminated
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("Shutting down.");
+            for(int i=1; i <= appConfig.getRelp().getOutputThreads(); i++) {
+                LOGGER.info(
+                        "Disconnecting relp thread #{}/{}",
+                        i,
+                        appConfig.getRelp().getOutputThreads()
+                );
+                RelpOutput output;
+                try {
+                    output = relpOutputPool.take();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                output.disconnect();
+            }
+            prometheusMetrics.close();
+            statefulFileReader.close();
+            LOGGER.info("Goodbye");
+        }, "ShutdownHook"));
 
         // Start a new thread for all logfile watchers
         for (String logfile : logfiles) {
@@ -199,7 +202,5 @@ public class KubernetesLogReader {
                 throw new RuntimeException(e);
             }
         }
-        prometheusMetrics.close();
-        statefulFileReader.close();
     }
 }
