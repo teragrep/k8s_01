@@ -101,7 +101,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 LOGGER.trace(
                         "[{}] Invalid syntax message: {}",
                         uuid,
-                        new String(record.getRecord())
+                        new String(record.getRecord(), Charset.defaultCharset())
                 );
                 throw new RuntimeException(
                         String.format(
@@ -123,7 +123,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 LOGGER.debug(
                         "[{}] Can't parse this properly: {}",
                         uuid,
-                        new String(record.getRecord())
+                        new String(record.getRecord(), Charset.defaultCharset())
                 );
                 throw new RuntimeException(
                     String.format(
