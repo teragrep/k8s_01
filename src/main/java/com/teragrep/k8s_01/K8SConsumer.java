@@ -282,6 +282,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
             }
 
             // Craft syslog message and structured-data
+            SDElement SDOrigin = new SDElement("origin@48577")
+                    .addSDParam("hostname", podMetadataContainer.getHost() + "/" + containerId);
             SDElement SDMetadata = new SDElement("kubernetesmeta@48577")
                     .addSDParam("kubernetes", kubernetesMetadata.toString())
                     .addSDParam("docker", dockerMetadata.toString())
@@ -302,6 +304,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withHostname(hostname)
                     .withAppName(appName)
                     .withFacility(Facility.USER)
+                    .withSDElement(SDOrigin)
                     .withSDElement(SDMetadata)
                     .withMsg(new String(record.getRecord(), StandardCharsets.UTF_8));
             try {
