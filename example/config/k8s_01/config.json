@@ -28,7 +28,8 @@
       "third-pod_default_third-pod-one-.*",
       "third-pod_default_third-pod-two-.*",
       "fifth-pod_default_.*"
-    ]
+    ],
+    "maxLogReadingThreads": 3
   },
   "relp": {
     "target": "receiver.receiver.default",
@@ -36,7 +37,6 @@
     "connectionTimeout": 5000,
     "readTimeout": 5000,
     "writeTimeout": 5000,
-    "reconnectInterval": 5000,
-    "outputThreads": 5
+    "reconnectInterval": 5000
   }
 }

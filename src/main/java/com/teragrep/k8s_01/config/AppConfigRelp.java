@@ -60,7 +60,6 @@ public class AppConfigRelp implements BaseConfig {
     private Integer readTimeout;
     private Integer writeTimeout;
     private Integer reconnectInterval;
-    private Integer outputThreads;
 
     public String getTarget() {
         return target;
@@ -84,10 +83,6 @@ public class AppConfigRelp implements BaseConfig {
 
     public Integer getReconnectInterval() {
         return reconnectInterval;
-    }
-
-    public Integer getOutputThreads() {
-        return outputThreads;
     }
 
     @Override
@@ -127,13 +122,6 @@ public class AppConfigRelp implements BaseConfig {
         }
         if(writeTimeout < 0) {
             throw new InvalidConfigurationException("Relp write timeout is invalid, expected positive integer");
-        }
-
-        if(outputThreads == null) {
-            throw new InvalidConfigurationException("outputThreads not found or is null in relp config object");
-        }
-        if(outputThreads <= 0) {
-            throw new InvalidConfigurationException("Relp output threads is invalid, expected >0");
         }
     }
 }

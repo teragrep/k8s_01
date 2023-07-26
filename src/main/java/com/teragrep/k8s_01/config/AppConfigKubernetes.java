@@ -42,6 +42,7 @@ public class AppConfigKubernetes implements BaseConfig {
     private String[] logfiles;
     private String url;
     private String timezone;
+    private Integer maxLogReadingThreads;
 
     public Integer getCacheExpireInterval() {
         return cacheExpireInterval;
@@ -66,6 +67,10 @@ public class AppConfigKubernetes implements BaseConfig {
         return cacheMaxEntries;
     }
     public String getTimezone() { return timezone; }
+
+    public Integer getMaxLogReadingThreads() {
+        return maxLogReadingThreads;
+    }
 
     @Override
     public String toString() {
@@ -103,6 +108,13 @@ public class AppConfigKubernetes implements BaseConfig {
 
         if(timezone == null) {
             throw new InvalidConfigurationException("timezone not found or is null in kubernetes config object");
+        }
+
+        if(maxLogReadingThreads == null) {
+            throw new InvalidConfigurationException("maxLogReadingThreads not found or is null in kubernetes config object");
+        }
+        if(maxLogReadingThreads <= 0) {
+            throw new InvalidConfigurationException("maxLogReadingThreads is invalid, expected >0");
         }
     }
 }

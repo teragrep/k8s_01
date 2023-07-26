@@ -28,6 +28,7 @@
       "third-pod_default_third-pod-one-.*",
       "third-pod_default_third-pod-two-.*"
     ]
+    "maxLogReadingThreads": 2
   },
   "relp": {
     "target": "127.0.0.1",
@@ -35,7 +36,6 @@
     "connectionTimeout": 5000,
     "readTimeout": 5000,
     "writeTimeout": 5000,
-    "reconnectInterval": 5000,
-    "outputThreads": 4
+    "reconnectInterval": 5000
   }
 }
