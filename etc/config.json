@@ -27,7 +27,7 @@
       "second-pod_default_.*",
       "third-pod_default_third-pod-one-.*",
       "third-pod_default_third-pod-two-.*"
-    ]
+    ],
     "maxLogReadingThreads": 2
   },
   "relp": {
