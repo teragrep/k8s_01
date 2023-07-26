@@ -92,14 +92,22 @@ public class KubernetesLogReader {
         PrometheusMetrics prometheusMetrics = new PrometheusMetrics(appConfig.getMetrics().getPort());
 
         // Pool of Relp output threads to be shared by every consumer
-        BlockingQueue<RelpOutput> relpOutputPool = new LinkedBlockingDeque<>(appConfig.getRelp().getOutputThreads());
+        int logFileCount = appConfig.getKubernetes().getLogfiles().length;
+        int outputThreads = appConfig.getKubernetes().getMaxLogReadingThreads() * logFileCount;
+        LOGGER.info(
+                "Found {} monitored logfile definitions, reading them with maximum of {} threads each.",
+                logFileCount,
+                appConfig.getKubernetes().getMaxLogReadingThreads()
+        );
+
+        BlockingQueue<RelpOutput> relpOutputPool = new LinkedBlockingDeque<>(outputThreads);
         LOGGER.info(
                 "Starting {} Relp threads towards {}:{}",
-                appConfig.getRelp().getOutputThreads(),
+                outputThreads,
                 appConfig.getRelp().getTarget(),
                 appConfig.getRelp().getPort()
         );
-        for(int i=1; i <= appConfig.getRelp().getOutputThreads(); i++) {
+        for(int i=1; i <= outputThreads; i++) {
             try {
                 LOGGER.debug(
                         "Adding RelpOutput thread #{}",
@@ -135,11 +143,11 @@ public class KubernetesLogReader {
         // Graceful shutdown so Relp sessions are gracefully terminated
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down.");
-            for(int i=1; i <= appConfig.getRelp().getOutputThreads(); i++) {
+            for(int i=1; i <= outputThreads; i++) {
                 LOGGER.info(
                         "Disconnecting relp thread #{}/{}",
                         i,
-                        appConfig.getRelp().getOutputThreads()
+                        outputThreads
                 );
                 RelpOutput output;
                 try {
@@ -169,7 +177,8 @@ public class KubernetesLogReader {
                             Pattern.compile(logfile),
                             statefulFileReader,
                             500,
-                            TimeUnit.MILLISECONDS
+                            TimeUnit.MILLISECONDS,
+                            appConfig.getKubernetes().getMaxLogReadingThreads()
                     );
                     dew.watch();
                 } catch (IOException | InterruptedException e) {
