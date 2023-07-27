@@ -144,13 +144,10 @@ public class KubernetesLogReader {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down.");
             for(DirectoryEventWatcher dew : dews) {
-                LOGGER.info("Shutting down dew " + dew);
+                LOGGER.debug("Shutting down dew " + dew);
                 try {
-                    LOGGER.info("pre stop " + dew);
                     dew.stop();
-                    LOGGER.info("post stop " + dew);
                 } catch (InterruptedException e) {
-                    LOGGER.info("Interrupted exceptionia lens: " + e);
                     throw new RuntimeException(e);
                 }
             }
