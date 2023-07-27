@@ -191,7 +191,7 @@ public class KubernetesLogReader {
                             TimeUnit.MILLISECONDS,
                             appConfig.getKubernetes().getMaxLogReadingThreads()
                     );
-                    LOGGER.info("Starting dew.watch()");
+                    LOGGER.debug("Starting dew.watch()");
                     dew.watch();
                 } catch (IOException | InterruptedException e) {
                     throw new RuntimeException(e);
