@@ -143,8 +143,19 @@ public class KubernetesLogReader {
         // Graceful shutdown so Relp sessions are gracefully terminated
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down.");
+            for(Thread thread : threads) {
+                LOGGER.debug(
+                        "Interrupting thread {}",
+                        thread.getName()
+                );
+                thread.interrupt();
+            }
+            LOGGER.info(
+                    "Disconnecting {} relp threads",
+                    outputThreads
+            );
             for(int i=1; i <= outputThreads; i++) {
-                LOGGER.info(
+                LOGGER.debug(
                         "Disconnecting relp thread #{}/{}",
                         i,
                         outputThreads
@@ -180,10 +191,12 @@ public class KubernetesLogReader {
                             TimeUnit.MILLISECONDS,
                             appConfig.getKubernetes().getMaxLogReadingThreads()
                     );
+                    LOGGER.info("Starting dew.watch()");
                     dew.watch();
                 } catch (IOException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+                LOGGER.debug("Thread done");
             });
             thread.setName("DEW-" + threads.size());
             thread.start();
