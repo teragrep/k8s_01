@@ -122,13 +122,11 @@ public class RelpOutput {
             totalConnections.dec();
             relpConnection.disconnect();
         } catch (IOException | TimeoutException e) {
-            LOGGER.debug(
+            LOGGER.info(
                     "[#{}] Had to teardown connection",
                     getId()
             );
             relpConnection.tearDown();
-            throughputErrors.mark();
-            throw new RuntimeException(e);
         }
     }
 

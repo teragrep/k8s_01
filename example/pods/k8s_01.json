@@ -15,7 +15,7 @@
     "serviceAccount": "kubelogreader",
     "serviceAccountName": "kubelogreader",
     "dnsPolicy": "ClusterFirst",
-    "terminationGracePeriodSeconds": 0,
+    "terminationGracePeriodSeconds": 30,
     "volumes": [
       {
         "name": "app-config",

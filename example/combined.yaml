@@ -181,6 +181,8 @@ metadata:
     app: first-pod-appname
     app-stderr: first-pod-appname-stderr
     env: dev
+    hostname: first-pod
+    hostname-stderr: first-pod-stderr
   name: first-pod
   namespace: default
 spec:
@@ -268,7 +270,7 @@ spec:
   restartPolicy: Always
   serviceAccount: kubelogreader
   serviceAccountName: kubelogreader
-  terminationGracePeriodSeconds: 0
+  terminationGracePeriodSeconds: 30
   volumes:
   - configMap:
       name: app-config-8dtf4m92md
@@ -308,6 +310,13 @@ spec:
     - /usr/bin/java
     image: ghcr.io/teragrep/rlp_07/app:latest
     imagePullPolicy: IfNotPresent
+    lifecycle:
+      preStop:
+        exec:
+          command:
+          - sh
+          - -c
+          - echo presleep; sleep 10;
     name: first-pod
     ports:
     - containerPort: 1601
@@ -321,7 +330,7 @@ spec:
   imagePullSecrets:
   - name: ghcr.io
   restartPolicy: Always
-  terminationGracePeriodSeconds: 0
+  terminationGracePeriodSeconds: 30
   volumes:
   - configMap:
       name: receiver-config-cf8g6bh7tg

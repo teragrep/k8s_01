@@ -3,6 +3,8 @@
     "name": "first-pod",
     "namespace": "default",
     "labels": {
+      "hostname": "first-pod",
+      "hostname-stderr": "first-pod-stderr",
       "app": "first-pod-appname",
       "app-stderr": "first-pod-appname-stderr",
       "env": "dev"

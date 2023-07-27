@@ -41,7 +41,7 @@ public class KubernetesLogReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesLogReader.class);
     private static final MetricRegistry metricRegistry = new MetricRegistry();
     static Gson gson = new Gson();
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         AppConfig appConfig;
         try {
             try(InputStreamReader isr = new InputStreamReader(Files.newInputStream(Paths.get("etc/config.json")), StandardCharsets.UTF_8)) {
@@ -127,7 +127,7 @@ public class KubernetesLogReader {
                 Arrays.toString(logfiles)
         );
 
-        List<Thread> threads = new ArrayList<>();
+        List<DirectoryEventWatcher> dews = new ArrayList<>();
         String statesStore = System.getProperty("user.dir") + "/var";
         LOGGER.debug(
                 "Using {} as statestore",
@@ -143,8 +143,20 @@ public class KubernetesLogReader {
         // Graceful shutdown so Relp sessions are gracefully terminated
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down.");
+            for(DirectoryEventWatcher dew : dews) {
+                LOGGER.debug("Shutting down dew " + dew);
+                try {
+                    dew.stop();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            LOGGER.info(
+                    "Disconnecting {} relp threads",
+                    outputThreads
+            );
             for(int i=1; i <= outputThreads; i++) {
-                LOGGER.info(
+                LOGGER.debug(
                         "Disconnecting relp thread #{}/{}",
                         i,
                         outputThreads
@@ -164,52 +176,23 @@ public class KubernetesLogReader {
 
         // Start a new thread for all logfile watchers
         for (String logfile : logfiles) {
-            Thread thread = new Thread(() -> {
-                LOGGER.debug(
-                        "Starting new DirectoryEventWatcher thread on directory '{}' with pattern '{}'",
-                        appConfig.getKubernetes().getLogdir(),
-                        logfile
-                );
-                try {
-                    DirectoryEventWatcher dew = new DirectoryEventWatcher(
-                            Paths.get(appConfig.getKubernetes().getLogdir()),
-                            false,
-                            Pattern.compile(logfile),
-                            statefulFileReader,
-                            500,
-                            TimeUnit.MILLISECONDS,
-                            appConfig.getKubernetes().getMaxLogReadingThreads()
-                    );
-                    dew.watch();
-                } catch (IOException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            thread.setName("DEW-" + threads.size());
-            thread.start();
-            threads.add(thread);
+            LOGGER.debug(
+                    "Starting new DirectoryEventWatcher on directory '{}' with pattern '{}'",
+                    appConfig.getKubernetes().getLogdir(),
+                    logfile
+            );
+            DirectoryEventWatcher dew = new DirectoryEventWatcher(
+                    Paths.get(appConfig.getKubernetes().getLogdir()),
+                    false,
+                    Pattern.compile(logfile),
+                    statefulFileReader,
+                    500,
+                    TimeUnit.MILLISECONDS,
+                    appConfig.getKubernetes().getMaxLogReadingThreads()
+            );
+            dew.start();
+            dews.add(dew);
         }
-
-        // FIXME: Is this necessary
-        for (Thread thread : threads) {
-            if(LOGGER.isTraceEnabled()) {
-                LOGGER.trace(
-                        "Waiting for thread {}#{} to finish",
-                        thread.getName(),
-                        thread.getId()
-                );
-            }
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                LOGGER.error(
-                        "Failed to stop thread {}#{}:",
-                        thread.getName(),
-                        thread.getId(),
-                        e
-                );
-                throw new RuntimeException(e);
-            }
-        }
+        Thread.sleep(Long.MAX_VALUE);
     }
 }

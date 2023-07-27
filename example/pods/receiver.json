@@ -12,7 +12,7 @@
   "spec": {
     "hostname": "receiver",
     "dnsPolicy": "ClusterFirst",
-    "terminationGracePeriodSeconds": 0,
+    "terminationGracePeriodSeconds": 30,
     "volumes": [
       {
         "name": "receiver-config",
@@ -39,6 +39,17 @@
             "name": "receiver-config"
           }
         ],
+        "lifecycle": {
+          "preStop": {
+            "exec": {
+              "command": [
+                "sh",
+                "-c",
+                "echo presleep; sleep 10;"
+              ]
+            }
+          }
+        },
         "command": [
           "/usr/bin/java"
         ],
