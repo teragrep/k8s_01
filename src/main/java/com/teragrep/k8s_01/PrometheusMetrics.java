@@ -36,6 +36,7 @@ public class PrometheusMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusMetrics.class);
     private final Server jettyServer;
     private final JmxReporter jmxReporter;
+    private final MetricRegistry metricRegistry = new MetricRegistry();
     public PrometheusMetrics(int port) {
         LOGGER.info("Starting prometheus metrics server on port {}", port);
 
@@ -48,9 +49,6 @@ public class PrometheusMetrics {
         MetricsServlet metricsServlet = new MetricsServlet();
         ServletHolder servletHolder = new ServletHolder(metricsServlet);
         context.addServlet(servletHolder, "/metrics");
-
-        // Container for all metrics
-        MetricRegistry metricRegistry = new MetricRegistry();
 
         // Totals
         metricRegistry.register(name("total", "reconnects"), new Counter());
@@ -86,6 +84,10 @@ public class PrometheusMetrics {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public MetricRegistry getRegistry() {
+        return metricRegistry;
     }
 
     public void close() {

@@ -17,7 +17,6 @@
 
 package com.teragrep.k8s_01;
 
-import com.codahale.metrics.MetricRegistry;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.teragrep.k8s_01.config.AppConfig;
@@ -39,7 +38,6 @@ import java.util.regex.Pattern;
 
 public class KubernetesLogReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesLogReader.class);
-    private static final MetricRegistry metricRegistry = new MetricRegistry();
     static Gson gson = new Gson();
     public static void main(String[] args) throws IOException, InterruptedException {
         AppConfig appConfig;
@@ -113,7 +111,7 @@ public class KubernetesLogReader {
                         "Adding RelpOutput thread #{}",
                         i
                 );
-                relpOutputPool.put(new RelpOutput(appConfig.getRelp(), i, metricRegistry));
+                relpOutputPool.put(new RelpOutput(appConfig.getRelp(), i, prometheusMetrics.getRegistry()));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
