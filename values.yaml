@@ -15,12 +15,10 @@ config:
     cacheMaxEntries: 4096
     labels:
       hostname:
-        prefix: prefix-
         fallback: fallback-hostname
         labelStdout: host
         labelStderr: host-stderr
       appname:
-        prefix: prefix-
         fallback: fallback-appname
         labelStdout: app
         labelStderr: app-stderr
