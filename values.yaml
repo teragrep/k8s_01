@@ -8,17 +8,18 @@ config:
   metrics:
     port: 12345
   kubernetes:
-    logdir: /var/log/containers
     url: https://127.0.0.1:8443
     timezone: Europe/Helsinki
     cacheExpireInterval: 900
     cacheMaxEntries: 4096
     labels:
       hostname:
+        prefix: prefix-
         fallback: fallback-hostname
         labelStdout: host
         labelStderr: host-stderr
       appname:
+        prefix: prefix-
         fallback: fallback-appname
         labelStdout: app
         labelStderr: app-stderr
@@ -33,6 +34,6 @@ config:
     readTimeout: 5000
     writeTimeout: 5000
     reconnectInterval: 5000
-logging:
-  level: INFO
+  logging:
+    level: INFO
 namespace: teragrep
