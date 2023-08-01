@@ -84,8 +84,12 @@
               <directoryIncluded>true</directoryIncluded>
               <sources>
                 <source>
-                  <location>${project.basedir}/../etc/config.json</location>
+                  <location>${project.basedir}/config.json</location>
                   <destination>config.json.example</destination>
+                </source>
+                <source>
+                  <location>${project.basedir}/log4j2.xml</location>
+                  <destination>log4j2.xml.example</destination>
                 </source>
               </sources>
             </mapping>            
