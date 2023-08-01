@@ -35,6 +35,6 @@ config:
     readTimeout: 5000
     writeTimeout: 5000
     reconnectInterval: 5000
-  logging:
-    level: INFO
+logging:
+  level: INFO
 namespace: teragrep
