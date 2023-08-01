@@ -10,7 +10,7 @@ data:
         "port": {{.Values.config.metrics.port}}
       },
       "kubernetes": {
-        "logdir": "/var/log/containers",
+        "logdir": "{{.Values.config.kubernetes.logdir}}",
         "url": "{{.Values.config.kubernetes.url}}",
         "timezone": "{{.Values.config.kubernetes.timezone}}",
         "cacheExpireInterval": {{.Values.config.kubernetes.cacheExpireInterval}},
