@@ -24,15 +24,9 @@ import java.util.regex.Pattern;
 
 /* POJO representing the .kubernetes.labels.{hostname,appname} part of config.json */
 public class AppConfigLabel implements BaseConfig {
-    private String prefix;
     private String fallback;
     private String labelStdout;
     private String labelStderr; // Can be null, is handled in getLabel
-
-    public String getPrefix() {
-        return prefix;
-    }
-
     public String getFallback() {
         return fallback;
     }
@@ -51,10 +45,6 @@ public class AppConfigLabel implements BaseConfig {
 
     @Override
     public void validate() throws InvalidConfigurationException {
-        if(prefix == null) {
-            throw new InvalidConfigurationException("prefix not found or is null in label config object");
-        }
-
         if(fallback == null) {
             throw new InvalidConfigurationException("fallback not found or is null in label config object");
         }

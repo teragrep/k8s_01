@@ -215,8 +215,6 @@ public class K8SConsumer implements Consumer<FileRecord> {
                         appConfig.getKubernetes().getLabels().getAppName().getFallback()
                 );
             }
-            hostname = appConfig.getKubernetes().getLabels().getHostname().getPrefix() + hostname;
-            appName = appConfig.getKubernetes().getLabels().getAppName().getPrefix() + appName;
 
             if(!hostnamePattern.matcher(hostname).matches()) {
                 throw new RuntimeException(

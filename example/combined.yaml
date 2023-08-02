@@ -47,13 +47,11 @@ data:
         "cacheMaxEntries": 4096,
         "labels": {
           "hostname": {
-            "prefix": "prefix-",
             "fallback": "fallback-hostname",
             "labelStdout": "host",
             "labelStderr": "host-stderr"
           },
           "appname": {
-            "prefix": "prefix-",
             "fallback": "fallback-appname",
             "labelStdout": "app",
             "labelStderr":  "app-stderr"
@@ -105,7 +103,7 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-8dtf4m92md
+  name: app-config-9fhfmhgmdd
 ---
 apiVersion: v1
 data:
@@ -273,7 +271,7 @@ spec:
   terminationGracePeriodSeconds: 30
   volumes:
   - configMap:
-      name: app-config-8dtf4m92md
+      name: app-config-9fhfmhgmdd
     name: app-config
   - hostPath:
       path: /var/log/containers
