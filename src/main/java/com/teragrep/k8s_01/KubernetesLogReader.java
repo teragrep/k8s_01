@@ -86,6 +86,12 @@ public class KubernetesLogReader {
             );
             return;
         }
+        if(appConfig.getKubernetes().getLabels().getDiscard().isEnabled()) {
+            LOGGER.warn(
+                    "WARNING: Event discarding is enabled. This will lose any data from pods that has label <[{}]> that is equal to \"true\".",
+                    appConfig.getKubernetes().getLabels().getDiscard().getLabel()
+            );
+        }
         KubernetesCachingAPIClient cacheClient = new KubernetesCachingAPIClient(appConfig.getKubernetes());
         PrometheusMetrics prometheusMetrics = new PrometheusMetrics(appConfig.getMetrics().getPort());
 
