@@ -222,23 +222,20 @@
             <exclude>.github/workflows/*.yaml</exclude>
             <exclude>toolchains.xml</exclude>
             <exclude>settings.xml</exclude>
-            <exclude>rpm/rpm.pom.xml</exclude>
             <!-- readme -->
             <exclude>README.adoc</exclude>
-            <exclude>README.md</exclude>
-            <!-- test cluster -->
-            <exclude>testcluster/**</exclude>
-            <!-- logger configs -->
-            <exclude>**/log4j2.xml</exclude>
-            <!-- docker stuff -->
-            <exclude>docker/*</exclude>
+            <!-- rpm extra files -->
+            <exclude>rpm/rpm.pom.xml</exclude>
+            <exclude>rpm/config.json</exclude>
+            <exclude>rpm/log4j2.xml</exclude>
+            <!-- docker -->
             <exclude>Dockerfile</exclude>
             <!-- example -->
             <exclude>example/**</exclude>
             <!-- helm files -->
-            <exclude>Chart.yaml</exclude>
-            <exclude>values.yaml</exclude>
-            <exclude>templates/*.yaml</exclude>
+            <exclude>k8s_01/README.adoc</exclude>
+            <exclude>k8s_01/*.yaml</exclude>
+            <exclude>k8s_01/templates/*.yaml</exclude>
           </excludes>
         </configuration>
       </plugin>
