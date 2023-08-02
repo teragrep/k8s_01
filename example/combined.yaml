@@ -67,7 +67,8 @@ data:
           "third-pod_default_third-pod-one-.*",
           "third-pod_default_third-pod-two-.*",
           "fifth-pod_default_.*",
-          "ignore-me-pod_default_.*"
+          "ignore-me-pod_default_.*",
+          "dont-ignore-me-pod_default_.*"
         ],
         "maxLogReadingThreads": 3
       },
@@ -111,7 +112,7 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-9gct67249k
+  name: app-config-dddtcgt697
 ---
 apiVersion: v1
 data:
@@ -159,6 +160,31 @@ spec:
     env: dev
   sessionAffinity: None
   type: NodePort
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: dont-ignore-me-app
+    discard: "false"
+    host: dont-ignore-me-host
+  name: dont-ignore-me-pod
+  namespace: default
+spec:
+  containers:
+  - args:
+    - -c
+    - while true; do echo 'I should be read and not ignored!'; sleep 5; done; sleep
+      inf;
+    command:
+    - /usr/bin/bash
+    image: rockylinux:8
+    imagePullPolicy: IfNotPresent
+    name: dont-ignore-me-pod
+  dnsPolicy: ClusterFirst
+  hostname: dont-ignore-me-pod
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 0
 ---
 apiVersion: v1
 kind: Pod
@@ -236,15 +262,16 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    discard: any-value
+    app: ignore-me-app
+    discard: "true"
+    host: ignore-me-pod
   name: ignore-me-pod
   namespace: default
 spec:
   containers:
   - args:
     - -c
-    - while true; do echo 'I am should be read but ignored'; sleep 5; done; sleep
-      inf;
+    - while true; do echo 'I should be read but ignored'; sleep 5; done; sleep inf;
     command:
     - /usr/bin/bash
     image: rockylinux:8
@@ -302,7 +329,7 @@ spec:
   terminationGracePeriodSeconds: 30
   volumes:
   - configMap:
-      name: app-config-9gct67249k
+      name: app-config-dddtcgt697
     name: app-config
   - hostPath:
       path: /var/log/containers

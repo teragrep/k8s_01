@@ -30,7 +30,8 @@
       "third-pod_default_third-pod-one-.*",
       "third-pod_default_third-pod-two-.*",
       "fifth-pod_default_.*",
-      "ignore-me-pod_default_.*"
+      "ignore-me-pod_default_.*",
+      "dont-ignore-me-pod_default_.*"
     ],
     "maxLogReadingThreads": 3
   },

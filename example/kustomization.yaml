@@ -12,6 +12,7 @@ resources:
   - pods/fourth-pod.json
   - pods/fifth-pod.json
   - pods/ignore-me-pod.json
+  - pods/dont-ignore-me-pod.json
   - pods/k8s_01.json
   - pods/receiver.json
 configMapGenerator:

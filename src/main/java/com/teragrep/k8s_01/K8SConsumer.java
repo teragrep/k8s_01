@@ -188,9 +188,14 @@ public class K8SConsumer implements Consumer<FileRecord> {
             NamespaceMetadataContainer namespaceMetadataContainer = cacheClient.getNamespace(namespace);
             PodMetadataContainer podMetadataContainer = cacheClient.getPod(namespace, podname);
             if(discardEnabled) {
-                if(podMetadataContainer.getLabels() != null && podMetadataContainer.getLabels().containsKey(discardLabel)) {
+                if(
+                        podMetadataContainer.getLabels() != null
+                        && podMetadataContainer.getLabels().containsKey(discardLabel)
+                        && podMetadataContainer.getLabels().get(discardLabel).equalsIgnoreCase("true")
+                ) {
                     LOGGER.debug(
-                            "Discarding event from pod <{}/{}> on container <{}>",
+                            "[{}] Discarding event from pod <{}/{}> on container <{}>",
+                            uuid,
                             namespace,
                             podname,
                             containerId

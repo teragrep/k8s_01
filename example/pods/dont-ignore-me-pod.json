@@ -1,30 +1,30 @@
 {
   "metadata": {
-    "name": "ignore-me-pod",
+    "name": "dont-ignore-me-pod",
     "namespace": "default",
     "labels": {
-      "host": "ignore-me-pod",
-      "app": "ignore-me-app",
-      "discard": "true"
+      "host": "dont-ignore-me-host",
+      "app": "dont-ignore-me-app",
+      "discard": "false"
     }
   },
   "kind": "Pod",
   "apiVersion": "v1",
   "spec": {
-    "hostname": "ignore-me-pod",
+    "hostname": "dont-ignore-me-pod",
     "dnsPolicy": "ClusterFirst",
     "terminationGracePeriodSeconds": 0,
     "containers": [
       {
         "image": "rockylinux:8",
         "imagePullPolicy": "IfNotPresent",
-        "name": "ignore-me-pod",
+        "name": "dont-ignore-me-pod",
         "command": [
           "/usr/bin/bash"
         ],
         "args": [
           "-c",
-          "while true; do echo 'I should be read but ignored'; sleep 5; done; sleep inf;"
+          "while true; do echo 'I should be read and not ignored!'; sleep 5; done; sleep inf;"
         ]
       }
     ],
