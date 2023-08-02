@@ -53,11 +53,15 @@ jobs:
       - name: Pack RPM
         run: cd rpm/ && mvn --batch-mode -Drevision=${{ github.event.release.tag_name }} -Dsha1= -Dchangelist= -f rpm.pom.xml package
 
+      - name: Create helm package
+        run: helm package --version=${{ github.event.release.tag_name }} --app-version=${{ github.event.release.tag_name }} k8s_01/
+
       - name: Attach rpm to release
         uses: softprops/action-gh-release@v1
         with:
-          files: rpm/target/rpm/com.teragrep-k8s_01/RPMS/noarch/com.teragrep-k8s_01-*.noarch.rpm
-
+          files: |
+            rpm/target/rpm/com.teragrep-k8s_01/RPMS/noarch/com.teragrep-k8s_01-*.noarch.rpm
+            k8s_01-*.tgz
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.5.0
 
