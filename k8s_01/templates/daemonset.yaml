@@ -38,7 +38,8 @@ spec:
           name: host-var-lib-docker-containers
       containers:
         - name: kubelogreader
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag}}"
+          image: "{{.Values.image.repository}}/{{.Values.image.path}}:{{.Values.image.tag}}"
+          imagePullPolicy: {{.Values.image.pullPolicy}}
           securityContext:
             privileged: true
           volumeMounts:

@@ -1,0 +1,3 @@
+# Helm Chart usage
+
+Edit wanted configurations in `values.yaml`, then run `helm install kubelogreader .` to create and deploy an example instance.
