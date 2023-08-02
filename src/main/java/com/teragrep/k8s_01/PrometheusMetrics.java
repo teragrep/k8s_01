@@ -52,13 +52,13 @@ public class PrometheusMetrics {
 
         // TODO: Prefix to be configurable?
         // Totals
-        metricRegistry.register(name("k8s_01", "total", "reconnects"), new Counter());
-        metricRegistry.register(name("k8s_01", "total", "connections"), new Counter());
+        metricRegistry.register(name("k8s01", "total", "reconnects"), new Counter());
+        metricRegistry.register(name("k8s01", "total", "connections"), new Counter());
 
         // Throughput meters
-        metricRegistry.register(name("k8s_01", "throughput", "bytes"), new Meter(new SlidingTimeWindowMovingAverages()));
-        metricRegistry.register(name("k8s_01", "throughput", "records"), new Meter(new SlidingTimeWindowMovingAverages()));
-        metricRegistry.register(name("k8s_01", "throughput", "errors"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("k8s01", "throughput", "bytes"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("k8s01", "throughput", "records"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("k8s01", "throughput", "errors"), new Meter(new SlidingTimeWindowMovingAverages()));
 
         // Misc
         metricRegistry.register(name("jvm", "vm"), new JvmAttributeGaugeSet());
