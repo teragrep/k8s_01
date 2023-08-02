@@ -50,14 +50,15 @@ public class PrometheusMetrics {
         ServletHolder servletHolder = new ServletHolder(metricsServlet);
         context.addServlet(servletHolder, "/metrics");
 
+        // TODO: Prefix to be configurable?
         // Totals
-        metricRegistry.register(name("total", "reconnects"), new Counter());
-        metricRegistry.register(name("total", "connections"), new Counter());
+        metricRegistry.register(name("k8s01", "total", "reconnects"), new Counter());
+        metricRegistry.register(name("k8s01", "total", "connections"), new Counter());
 
         // Throughput meters
-        metricRegistry.register(name("throughput", "bytes"), new Meter(new SlidingTimeWindowMovingAverages()));
-        metricRegistry.register(name("throughput", "records"), new Meter(new SlidingTimeWindowMovingAverages()));
-        metricRegistry.register(name("throughput", "errors"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("k8s01", "throughput", "bytes"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("k8s01", "throughput", "records"), new Meter(new SlidingTimeWindowMovingAverages()));
+        metricRegistry.register(name("k8s01", "throughput", "errors"), new Meter(new SlidingTimeWindowMovingAverages()));
 
         // Misc
         metricRegistry.register(name("jvm", "vm"), new JvmAttributeGaugeSet());
