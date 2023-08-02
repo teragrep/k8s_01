@@ -63,13 +63,13 @@ public class RelpOutput {
         relpConnection.setReadTimeout(relpConfig.getReadTimeout());
         relpConnection.setWriteTimeout(relpConfig.getWriteTimeout());
         // Throughput
-        throughputBytes = metricRegistry.meter(name("k8s_01", "throughput", "bytes"));
-        throughputRecords = metricRegistry.meter(name("k8s_01", "throughput", "records"));
-        throughputErrors = metricRegistry.meter(name("k8s_01", "throughput", "errors"));
+        throughputBytes = metricRegistry.meter(name("k8s01", "throughput", "bytes"));
+        throughputRecords = metricRegistry.meter(name("k8s01", "throughput", "records"));
+        throughputErrors = metricRegistry.meter(name("k8s01", "throughput", "errors"));
 
         // Totals
-        totalConnections = metricRegistry.counter(name("k8s_01", "total", "connections"));
-        totalReconnects = metricRegistry.counter(name("k8s_01", "total", "reconnects"));
+        totalConnections = metricRegistry.counter(name("k8s01", "total", "connections"));
+        totalReconnects = metricRegistry.counter(name("k8s01", "total", "reconnects"));
         connect();
     }
 
