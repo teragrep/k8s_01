@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-service
+  labels:
+    app: k8s_01
+    host: kubelogreader
+spec:
+  selector:
+    app: k8s_01
+  ports:
+    - name: metrics-service
+      protocol: TCP
+      port: {{.Values.config.metrics.port}}
+      targetPort: {{.Values.config.metrics.port}}
