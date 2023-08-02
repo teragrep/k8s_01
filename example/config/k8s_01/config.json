@@ -18,6 +18,10 @@
         "fallback": "fallback-appname",
         "labelStdout": "app",
         "labelStderr":  "app-stderr"
+      },
+      "discard": {
+        "enabled": true,
+        "label": "discard"
       }
     },
     "logfiles": [
@@ -25,7 +29,8 @@
       "second-pod_default_.*",
       "third-pod_default_third-pod-one-.*",
       "third-pod_default_third-pod-two-.*",
-      "fifth-pod_default_.*"
+      "fifth-pod_default_.*",
+      "ignore-me-pod_default_.*"
     ],
     "maxLogReadingThreads": 3
   },

@@ -22,6 +22,9 @@ config:
         fallback: fallback-appname
         labelStdout: app
         labelStderr: app-stderr
+      discard:
+        enabled: false
+        label: if-found-discard-my-logs
     logfiles:
       - example-pod_default_.*
       - second-pod_default_.*

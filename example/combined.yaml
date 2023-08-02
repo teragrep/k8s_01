@@ -55,6 +55,10 @@ data:
             "fallback": "fallback-appname",
             "labelStdout": "app",
             "labelStderr":  "app-stderr"
+          },
+          "discard": {
+            "enabled": true,
+            "label": "discard"
           }
         },
         "logfiles": [
@@ -62,7 +66,8 @@ data:
           "second-pod_default_.*",
           "third-pod_default_third-pod-one-.*",
           "third-pod_default_third-pod-two-.*",
-          "fifth-pod_default_.*"
+          "fifth-pod_default_.*",
+          "ignore-me-pod_default_.*"
         ],
         "maxLogReadingThreads": 3
       },
@@ -90,6 +95,9 @@ data:
             <Logger name="com.teragrep.k8s_01.KubernetesCachingAPIClient" level="INFO" additivity="false">
                 <AppenderRef ref="STDOUT" />
             </Logger>
+            <Logger name="com.teragrep.k8s_01.K8SConsumer" level="DEBUG" additivity="false">
+                <AppenderRef ref="STDOUT" />
+            </Logger>
             <Logger name="com.teragrep.rlo_12" level="INFO" additivity="false">
                 <AppenderRef ref="STDOUT" />
             </Logger>
@@ -103,7 +111,7 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-9fhfmhgmdd
+  name: app-config-9gct67249k
 ---
 apiVersion: v1
 data:
@@ -228,6 +236,29 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
+    discard: any-value
+  name: ignore-me-pod
+  namespace: default
+spec:
+  containers:
+  - args:
+    - -c
+    - while true; do echo 'I am should be read but ignored'; sleep 5; done; sleep
+      inf;
+    command:
+    - /usr/bin/bash
+    image: rockylinux:8
+    imagePullPolicy: IfNotPresent
+    name: ignore-me-pod
+  dnsPolicy: ClusterFirst
+  hostname: ignore-me-pod
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
     app: k8s_01
     env: dev
     host: k8s_01
@@ -271,7 +302,7 @@ spec:
   terminationGracePeriodSeconds: 30
   volumes:
   - configMap:
-      name: app-config-9fhfmhgmdd
+      name: app-config-9gct67249k
     name: app-config
   - hostPath:
       path: /var/log/containers

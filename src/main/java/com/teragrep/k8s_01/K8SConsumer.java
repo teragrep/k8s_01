@@ -59,7 +59,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
     // Validators
     private static final Pattern hostnamePattern = Pattern.compile("^[a-zA-Z0-9.-]+$"); // Not perfect but filters basically all mistakes
     private static final Pattern appNamePattern = Pattern.compile("^[\\x21-\\x7e]+$"); // DEC 33 - DEC 126 as specified in RFC5424
-
+    private final boolean discardEnabled;
+    private final String discardLabel;
     K8SConsumer(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
@@ -69,6 +70,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
         this.cacheClient = cacheClient;
         this.relpOutputPool = relpOutputPool;
         this.timezoneId = ZoneId.of(appConfig.getKubernetes().getTimezone());
+        this.discardEnabled = appConfig.getKubernetes().getLabels().getDiscard().isEnabled();
+        this.discardLabel = appConfig.getKubernetes().getLabels().getDiscard().getLabel();
     }
     @Override
     public void accept(FileRecord record) {
@@ -184,6 +187,17 @@ public class K8SConsumer implements Consumer<FileRecord> {
 
             NamespaceMetadataContainer namespaceMetadataContainer = cacheClient.getNamespace(namespace);
             PodMetadataContainer podMetadataContainer = cacheClient.getPod(namespace, podname);
+            if(discardEnabled) {
+                if(podMetadataContainer.getLabels() != null && podMetadataContainer.getLabels().containsKey(discardLabel)) {
+                    LOGGER.debug(
+                            "Discarding event from pod <{}/{}> on container <{}>",
+                            namespace,
+                            podname,
+                            containerId
+                    );
+                    return;
+                }
+            }
             KubernetesMetadata kubernetesMetadata = new KubernetesMetadata(
                     namespaceMetadataContainer,
                     podMetadataContainer,
