@@ -12,9 +12,6 @@
         <Logger name="com.teragrep.k8s_01.KubernetesCachingAPIClient" level="INFO" additivity="false">
             <AppenderRef ref="STDOUT" />
         </Logger>
-        <Logger name="com.teragrep.k8s_01.K8SConsumer" level="DEBUG" additivity="false">
-            <AppenderRef ref="STDOUT" />
-        </Logger>
         <Logger name="com.teragrep.rlo_12" level="INFO" additivity="false">
             <AppenderRef ref="STDOUT" />
         </Logger>
