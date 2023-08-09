@@ -1,8 +1,7 @@
 image:
-  # Image will be downloaded from {repository}/{path}:{tag}
+  # Image will be downloaded from {repository}/{path}:{Tag from Chart.Version}
   repository: ghcr.io
-  path: teragrep/k8s_01/app
-  tag: latest
+  path: teragrep/k8s_01
   pullPolicy: IfNotPresent
 
 config:
