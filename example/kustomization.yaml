@@ -5,7 +5,6 @@ resources:
   - services/serviceaccount.json
   - services/role.json
   - services/rolebinding.json
-  - services/secret.json
   - pods/first-pod.json
   - pods/second-pod.json
   - pods/third-pod.json
