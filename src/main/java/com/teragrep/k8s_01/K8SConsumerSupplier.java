@@ -19,8 +19,6 @@ package com.teragrep.k8s_01;
 
 import com.teragrep.k8s_01.config.AppConfig;
 import com.teragrep.rlo_13.FileRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
@@ -30,19 +28,22 @@ public class K8SConsumerSupplier implements Supplier<Consumer<FileRecord>> {
     private final AppConfig appConfig;
     private final KubernetesCachingAPIClient cacheClient;
     private final BlockingQueue<RelpOutput> relpOutputPool;
+    private final String apiUrl;
 
     K8SConsumerSupplier(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
-            BlockingQueue<RelpOutput> relpOutputPool
+            BlockingQueue<RelpOutput> relpOutputPool,
+            String apiUrl
     ) {
         this.appConfig = appConfig;
         this.cacheClient = cacheClient;
         this.relpOutputPool = relpOutputPool;
+        this.apiUrl = apiUrl;
     }
 
     @Override
     public Consumer<FileRecord> get() {
-        return new K8SConsumer(appConfig, cacheClient, relpOutputPool);
+        return new K8SConsumer(appConfig, cacheClient, relpOutputPool, apiUrl);
     }
 }

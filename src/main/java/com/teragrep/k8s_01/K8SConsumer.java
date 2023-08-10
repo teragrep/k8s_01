@@ -61,14 +61,17 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private static final Pattern appNamePattern = Pattern.compile("^[\\x21-\\x7e]+$"); // DEC 33 - DEC 126 as specified in RFC5424
     private final boolean discardEnabled;
     private final String discardLabel;
+    private final String apiUrl;
     K8SConsumer(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
-            BlockingQueue<RelpOutput> relpOutputPool
+            BlockingQueue<RelpOutput> relpOutputPool,
+            String apiUrl
     ) {
         this.appConfig = appConfig;
         this.cacheClient = cacheClient;
         this.relpOutputPool = relpOutputPool;
+        this.apiUrl = apiUrl;
         this.timezoneId = ZoneId.of(appConfig.getKubernetes().getTimezone());
         this.discardEnabled = appConfig.getKubernetes().getLabels().getDiscard().isEnabled();
         this.discardLabel = appConfig.getKubernetes().getLabels().getDiscard().getLabel();
@@ -207,7 +210,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     namespaceMetadataContainer,
                     podMetadataContainer,
                     ContainerInfo.getContainerName(record.getFilename()),
-                    appConfig.getKubernetes().getUrl()
+                    apiUrl
             );
             JsonObject dockerMetadata = new JsonObject();
             dockerMetadata.addProperty("container_id", containerId);

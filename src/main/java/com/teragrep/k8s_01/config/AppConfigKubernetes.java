@@ -25,22 +25,11 @@ import org.slf4j.LoggerFactory;
 /* POJO representing the .kubernetes part of config.json */
 public class AppConfigKubernetes implements BaseConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppConfigKubernetes.class);
-    public void handleOverrides() {
-        String kubernetesUrl = System.getenv("K8S_01_KUBERNETES_URL");
-        if(kubernetesUrl != null) {
-            LOGGER.info(
-                    "Found K8S_01_KUBERNETES_URL environment variable <[{}]>, using it as kubernetes url.",
-                    kubernetesUrl
-            );
-            this.url = kubernetesUrl;
-        }
-    }
     private Integer cacheExpireInterval;
     private Integer cacheMaxEntries;
     private String logdir;
     private AppConfigLabels labels;
     private String[] logfiles;
-    private String url;
     private String timezone;
     private Integer maxLogReadingThreads;
 
@@ -58,10 +47,6 @@ public class AppConfigKubernetes implements BaseConfig {
 
     public String[] getLogfiles() {
         return logfiles;
-    }
-
-    public String getUrl() {
-        return url;
     }
     public Integer getCacheMaxEntries() {
         return cacheMaxEntries;
@@ -100,10 +85,6 @@ public class AppConfigKubernetes implements BaseConfig {
             if (logfile == null) {
                 throw new InvalidConfigurationException("Found null logfile definition in configuration file, expected string");
             }
-        }
-
-        if(url == null) {
-            throw new InvalidConfigurationException("url not found or is null in kubernetes config object");
         }
 
         if(timezone == null) {

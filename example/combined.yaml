@@ -41,7 +41,6 @@ data:
       },
       "kubernetes": {
         "logdir": "/var/log/containers",
-        "url": "https://127.0.0.1:8443",
         "timezone": "Europe/Helsinki",
         "cacheExpireInterval": 300,
         "cacheMaxEntries": 4096,
@@ -109,7 +108,7 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-5tmb2cmh92
+  name: app-config-674ff8b7bd
 ---
 apiVersion: v1
 data:
@@ -293,12 +292,11 @@ spec:
   - args:
     - -c
     - export K8S_01_RELP_TARGET="${RELP_SERVICE_SERVICE_HOST}"; export K8S_01_RELP_PORT="${RELP_SERVICE_SERVICE_PORT}";
-      export K8S_01_KUBERNETES_URL="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}";
       cd /opt/teragrep/k8s_01 || exit 1; exec /usr/bin/java -Dlog4j2.configurationFile=file:etc/log4j2.xml
       -jar lib/k8s_01.jar;
     command:
     - /usr/bin/bash
-    image: ghcr.io/teragrep/k8s_01/app:latest
+    image: ghcr.io/teragrep/k8s_01:latest
     imagePullPolicy: IfNotPresent
     name: kubelogreader
     volumeMounts:
@@ -326,7 +324,7 @@ spec:
   terminationGracePeriodSeconds: 30
   volumes:
   - configMap:
-      name: app-config-5tmb2cmh92
+      name: app-config-674ff8b7bd
     name: app-config
   - hostPath:
       path: /var/log/containers

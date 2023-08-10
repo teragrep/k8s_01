@@ -54,7 +54,7 @@
     ],
     "containers": [
       {
-        "image": "ghcr.io/teragrep/k8s_01/app:latest",
+        "image": "ghcr.io/teragrep/k8s_01:latest",
         "imagePullPolicy": "IfNotPresent",
         "name": "kubelogreader",
         "volumeMounts": [
@@ -88,7 +88,7 @@
         ],
         "args": [
           "-c",
-          "export K8S_01_RELP_TARGET=\"${RELP_SERVICE_SERVICE_HOST}\"; export K8S_01_RELP_PORT=\"${RELP_SERVICE_SERVICE_PORT}\"; export K8S_01_KUBERNETES_URL=\"https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}\"; cd /opt/teragrep/k8s_01 || exit 1; exec /usr/bin/java -Dlog4j2.configurationFile=file:etc/log4j2.xml -jar lib/k8s_01.jar;"
+          "export K8S_01_RELP_TARGET=\"${RELP_SERVICE_SERVICE_HOST}\"; export K8S_01_RELP_PORT=\"${RELP_SERVICE_SERVICE_PORT}\"; cd /opt/teragrep/k8s_01 || exit 1; exec /usr/bin/java -Dlog4j2.configurationFile=file:etc/log4j2.xml -jar lib/k8s_01.jar;"
         ]
       }
     ],
