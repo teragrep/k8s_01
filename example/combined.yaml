@@ -133,14 +133,6 @@ metadata:
   name: receiver-config-cf8g6bh7tg
 ---
 apiVersion: v1
-kind: Secret
-metadata:
-  annotations:
-    kubernetes.io/service-account.name: kubelogreader
-  name: kubelogreader
-type: kubernetes.io/service-account-token
----
-apiVersion: v1
 kind: Service
 metadata:
   name: relp-service
