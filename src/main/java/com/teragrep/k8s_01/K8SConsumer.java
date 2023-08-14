@@ -330,7 +330,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withSDElement(sdAdditionalMetadata)
                     .withSDElement(sdOrigin)
                     .withSDElement(sdMetadata)
-                    .withMsg(new String(record.getRecord(), StandardCharsets.UTF_8));
+                    .withMsg(log.getLog());
             try {
                 RelpOutput output = relpOutputPool.take();
                 output.send(syslog);
