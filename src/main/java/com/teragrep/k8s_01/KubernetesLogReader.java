@@ -114,10 +114,11 @@ public class KubernetesLogReader {
 
         BlockingQueue<RelpOutput> relpOutputPool = new LinkedBlockingDeque<>(outputThreads);
         LOGGER.info(
-                "Starting {} Relp threads towards {}:{}",
+                "Starting {} Relp threads towards {}:{}, using tls: {}",
                 outputThreads,
                 appConfig.getRelp().getTarget(),
-                appConfig.getRelp().getPort()
+                appConfig.getRelp().getPort(),
+                appConfig.getRelp().getTls().getEnabled()
         );
         for(int i=1; i <= outputThreads; i++) {
             try {

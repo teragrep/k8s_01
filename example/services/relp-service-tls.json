@@ -1,0 +1,24 @@
+ {
+  "metadata": {
+    "name": "relp-service-tls",
+    "namespace": "default"
+  },
+  "apiVersion": "v1",
+  "kind": "Service",
+  "spec": {
+    "sessionAffinity": "None",
+    "selector": {
+      "app": "receiver-tls",
+      "env": "dev"
+    },
+    "ports": [
+      {
+        "name": "relp-tls",
+        "protocol": "TCP",
+        "port": 1601,
+        "targetPort": 1601
+      }
+    ],
+    "type": "NodePort"
+  }
+}

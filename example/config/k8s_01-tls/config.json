@@ -5,7 +5,7 @@
   "kubernetes": {
     "metadata": {
       "cluster": "example",
-      "tls": "false"
+      "tls": "from tls server"
     },
     "logdir": "/var/log/containers",
     "timezone": "Europe/Helsinki",
@@ -39,12 +39,12 @@
     "maxLogReadingThreads": 3
   },
   "relp": {
-    "target": "receiver.receiver.default",
+    "target": "receiver-tls.receiver-tls.default",
     "port": 1601,
     "tls": {
-      "enabled": false,
-      "password": null,
-      "keystore": null
+      "enabled": true,
+      "password": "mypassword",
+      "keystore": "/opt/teragrep/k8s_01/etc/k8s_01-keystore.jks"
     },
     "connectionTimeout": 5000,
     "readTimeout": 5000,

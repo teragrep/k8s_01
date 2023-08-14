@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "name": "receiver-tls",
+    "namespace": "default",
+    "labels": {
+      "app": "receiver-tls",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "receiver-tls",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 30,
+    "volumes": [
+      {
+        "name": "receiver-config-tls",
+        "configMap": {
+          "name": "receiver-config-tls"
+        }
+      }
+    ],
+    "containers": [
+      {
+        "image": "ghcr.io/teragrep/rlp_07/app:latest",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "first-pod",
+        "ports": [
+          {
+            "protocol": "TCP",
+            "name": "relp",
+            "containerPort": 1601
+          }
+        ],
+        "volumeMounts": [
+          {
+            "mountPath": "/config/",
+            "name": "receiver-config-tls"
+          }
+        ],
+        "lifecycle": {
+          "preStop": {
+            "exec": {
+              "command": [
+                "sh",
+                "-c",
+                "echo presleep; sleep 10;"
+              ]
+            }
+          }
+        },
+        "command": [
+          "/usr/bin/java"
+        ],
+        "args": [
+          "-Dlog4j.configurationFile=/config/log4j2.xml", "-Dtls=true", "-DtlsKeystore=/config/rlp_07-keystore.jks", "-DtlsKeystorePassword=mypassword", "-jar", "/opt/teragrep/rlp_07/lib/rlp_07.jar"
+        ]
+      }
+    ],
+    "imagePullSecrets": [
+      {
+        "name": "ghcr.io"
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}

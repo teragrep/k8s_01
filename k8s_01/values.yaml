@@ -5,17 +5,17 @@ image:
   pullPolicy: IfNotPresent
 
 config:
-  # Metadata to be added. Example:
-  # metadata:
-  #   cluster: demo
-  #   owner: xyz
-  # maps as [user_metadata@48577 cluster="demo" owner="xyz"].
-  metadata: {}
   # Which port metrics service will be exposed to
   metrics:
     port: 12345
   # Kubernetes configurations
   kubernetes:
+    # Metadata to be added. Example:
+    # metadata:
+    #   cluster: demo
+    #   owner: xyz
+    # maps as [user_metadata@48577 cluster="demo" owner="xyz"].
+    metadata: {}
     # Base path where logs are read from. Uses {logdir}/{logfiles}
     logdir: /var/log/containers
     # Timezone used by the logs
@@ -55,6 +55,18 @@ config:
     target: 127.0.0.1
     # Relp target server port. Can be set dynamically with "K8S_01_RELP_PORT" environment variable
     port: 1601
+    # tls settings
+    tls:
+      # Is TLS enabled at all
+      enabled: false
+      # Absolute /path/to/keystore.jks
+      # This can be passed as a secret and you can make it with following command - key for file is automatically set
+      # kubectl create secret generic -n teragrep keystore --from-file=keystore.jks=some-keystore.jks
+      # and it will be automatically mounted to /opt/teragrep/k8s_01/secrets/. It is optional so no mounts needed if tls is not used
+      # Secret which is passed to the container can be controlled via keystore.secretName
+      keystore: /opt/teragrep/k8s_01/secret/keystore.jks
+      # Password for the keystore
+      password: changeme
     # Timeouts and intervals, in milliseconds.
     connectionTimeout: 5000
     readTimeout: 5000
@@ -67,3 +79,8 @@ logging:
 
 # Which namespace it will be installed to.
 namespace: teragrep
+
+# Keystore related
+keystore:
+  # Which secret is passed to the container
+  secretName: keystore

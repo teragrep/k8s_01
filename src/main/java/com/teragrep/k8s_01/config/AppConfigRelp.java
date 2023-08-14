@@ -60,6 +60,7 @@ public class AppConfigRelp implements BaseConfig {
     private Integer readTimeout;
     private Integer writeTimeout;
     private Integer reconnectInterval;
+    private AppConfigRelpTls tls;
 
     public String getTarget() {
         return target;
@@ -83,6 +84,10 @@ public class AppConfigRelp implements BaseConfig {
 
     public Integer getReconnectInterval() {
         return reconnectInterval;
+    }
+
+    public AppConfigRelpTls getTls() {
+        return tls;
     }
 
     @Override
@@ -123,5 +128,10 @@ public class AppConfigRelp implements BaseConfig {
         if(writeTimeout < 0) {
             throw new InvalidConfigurationException("Relp write timeout is invalid, expected positive integer");
         }
+
+        if(tls == null) {
+            throw new InvalidConfigurationException("tls not found or is null in relp config object");
+        }
+        tls.validate();
     }
 }
