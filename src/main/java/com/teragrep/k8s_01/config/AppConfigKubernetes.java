@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /* POJO representing the .kubernetes part of config.json */
 public class AppConfigKubernetes implements BaseConfig {
@@ -108,6 +109,18 @@ public class AppConfigKubernetes implements BaseConfig {
 
         if(metadata == null) {
             throw new InvalidConfigurationException("metadata is null, expected it to exist, even if empty.");
+        }
+        for(Map.Entry<String, String> entry : metadata.entrySet()) {
+            // Checking only values since object keys must be strings according to JSON spec
+            // int/float/bool values are cast into Strings and rest are handled by initial gson loader as failures
+            if(entry.getValue() == null) {
+                throw new InvalidConfigurationException(
+                        String.format(
+                                "metadata <[%s]> is null, can't continue.",
+                                entry.getKey()
+                        )
+                );
+            }
         }
     }
 }
