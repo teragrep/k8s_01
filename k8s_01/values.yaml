@@ -12,8 +12,6 @@ config:
   kubernetes:
     # Base path where logs are read from. Uses {logdir}/{logfiles}
     logdir: /var/log/containers
-    # Kubernetes API url where metadata is asked from. Can be dynamically set with "K8S_01_KUBERNETES_URL" environment variable.
-    url: https://127.0.0.1:8443
     # Timezone used by the logs
     timezone: Europe/Helsinki
     # How long API responses are cached

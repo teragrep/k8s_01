@@ -2,6 +2,8 @@
 
 A container that will read mounted container logfiles, then enriches them using Kubernetes API server, and forwards them with RELP to wanted target server.
 
+It uses KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT environment variables to connect to the Kubernetes API.
+
 ## Example Helm Chart usage
 
 See `k8s_01/` directory for more information
@@ -13,8 +15,6 @@ Currently supported:
  - `K8S_01_RELP_TARGET` overwrites `.relp.target`
 
  - `K8S_01_RELP_PORT` overwrites `.relp.port`
-
- - `K8S_01_KUBERNETES_URL` overwrites `.kubernetes.url`
 
 ## Example test cluster usage
 

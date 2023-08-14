@@ -43,11 +43,11 @@ class KubernetesCachingAPIClient {
     private LoadingCache<String, NamespaceMetadataContainer> namespaceCache;
     private final AppConfigKubernetes config;
 
-    KubernetesCachingAPIClient(AppConfigKubernetes appConfigKubernetes) throws IOException {
+    KubernetesCachingAPIClient(AppConfigKubernetes appConfigKubernetes, String apiUrl) throws IOException {
         config = appConfigKubernetes;
         LOGGER.info(
                 "Starting Caching API Client using {}",
-                config.getUrl()
+                apiUrl
         );
         LOGGER.info(
                 "Keeping up to {} cached entries for {} seconds before evicting.",
@@ -60,7 +60,7 @@ class KubernetesCachingAPIClient {
         );
         try {
             ApiClient client = Config.fromCluster();
-            client.setBasePath(config.getUrl());
+            client.setBasePath(apiUrl);
             Configuration.setDefaultApiClient(client);
             api = new CoreV1Api();
         } catch (Exception e) {

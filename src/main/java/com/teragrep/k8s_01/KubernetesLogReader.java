@@ -75,7 +75,6 @@ public class KubernetesLogReader {
             return;
         }
         try {
-            appConfig.getKubernetes().handleOverrides();
             appConfig.getRelp().handleOverrides();
             appConfig.validate();
         }
@@ -86,13 +85,22 @@ public class KubernetesLogReader {
             );
             return;
         }
+
+        String apiAddress = System.getenv("KUBERNETES_SERVICE_HOST");
+        String apiPort = System.getenv("KUBERNETES_SERVICE_PORT");
+        if(apiAddress == null || apiPort == null) {
+            LOGGER.error("Can't resolve KUBERNETES_SERVICE_HOST and/or KUBERNETES_SERVICE_PORT environment variables, can't continue.");
+            return;
+        }
+        String apiUrl = String.format("https://%s:%s", apiAddress, apiPort);
+
         if(appConfig.getKubernetes().getLabels().getDiscard().isEnabled()) {
             LOGGER.warn(
                     "WARNING: Event discarding is enabled. This will lose any data from pods that has label <[{}]> that is equal to \"true\".",
                     appConfig.getKubernetes().getLabels().getDiscard().getLabel()
             );
         }
-        KubernetesCachingAPIClient cacheClient = new KubernetesCachingAPIClient(appConfig.getKubernetes());
+        KubernetesCachingAPIClient cacheClient = new KubernetesCachingAPIClient(appConfig.getKubernetes(), apiUrl);
         PrometheusMetrics prometheusMetrics = new PrometheusMetrics(appConfig.getMetrics().getPort());
 
         // Pool of Relp output threads to be shared by every consumer
@@ -124,7 +132,7 @@ public class KubernetesLogReader {
         }
 
         // consumer supplier, returns always the same instance
-        K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool);
+        K8SConsumerSupplier consumerSupplier = new K8SConsumerSupplier(appConfig, cacheClient, relpOutputPool, apiUrl);
         String[] logfiles = appConfig.getKubernetes().getLogfiles();
         LOGGER.debug(
                 "Monitored logfiles: {}",
