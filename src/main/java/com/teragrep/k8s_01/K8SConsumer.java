@@ -62,6 +62,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private final boolean discardEnabled;
     private final String discardLabel;
     private final String apiUrl;
+    private final SDElement sdAdditionalMetadata;
     K8SConsumer(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
@@ -75,6 +76,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
         this.timezoneId = ZoneId.of(appConfig.getKubernetes().getTimezone());
         this.discardEnabled = appConfig.getKubernetes().getLabels().getDiscard().isEnabled();
         this.discardLabel = appConfig.getKubernetes().getLabels().getDiscard().getLabel();
+        sdAdditionalMetadata = new SDElement("additional_metadata@48577");
+        appConfig.getKubernetes().getMetadata().forEach(sdAdditionalMetadata::addSDParam);
     }
     @Override
     public void accept(FileRecord record) {
@@ -302,9 +305,9 @@ public class K8SConsumer implements Consumer<FileRecord> {
             }
 
             // Craft syslog message and structured-data
-            SDElement SDOrigin = new SDElement("origin@48577")
+            SDElement sdOrigin = new SDElement("origin@48577")
                     .addSDParam("hostname", podMetadataContainer.getHost() + "/" + containerId);
-            SDElement SDMetadata = new SDElement("kubernetesmeta@48577")
+            SDElement sdMetadata = new SDElement("kubernetesmeta@48577")
                     .addSDParam("kubernetes", kubernetesMetadata.toString())
                     .addSDParam("docker", dockerMetadata.toString())
                     .addSDParam("stream", log.getStream());
@@ -324,8 +327,9 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withHostname(hostname)
                     .withAppName(appName)
                     .withFacility(Facility.USER)
-                    .withSDElement(SDOrigin)
-                    .withSDElement(SDMetadata)
+                    .withSDElement(sdAdditionalMetadata)
+                    .withSDElement(sdOrigin)
+                    .withSDElement(sdMetadata)
                     .withMsg(new String(record.getRecord(), StandardCharsets.UTF_8));
             try {
                 RelpOutput output = relpOutputPool.take();

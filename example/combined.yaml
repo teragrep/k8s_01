@@ -40,6 +40,10 @@ data:
         "port": 12345
       },
       "kubernetes": {
+        "metadata": {
+          "cluster": "example",
+          "demo": true
+        },
         "logdir": "/var/log/containers",
         "timezone": "Europe/Helsinki",
         "cacheExpireInterval": 300,
@@ -108,7 +112,7 @@ data:
     </Configuration>
 kind: ConfigMap
 metadata:
-  name: app-config-674ff8b7bd
+  name: app-config-m9c98bd42b
 ---
 apiVersion: v1
 data:
@@ -316,7 +320,7 @@ spec:
   terminationGracePeriodSeconds: 30
   volumes:
   - configMap:
-      name: app-config-674ff8b7bd
+      name: app-config-m9c98bd42b
     name: app-config
   - hostPath:
       path: /var/log/containers

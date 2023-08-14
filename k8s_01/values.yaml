@@ -5,6 +5,12 @@ image:
   pullPolicy: IfNotPresent
 
 config:
+  # Metadata to be added. Example:
+  # metadata:
+  #   cluster: demo
+  #   owner: xyz
+  # maps as [user_metadata@48577 cluster="demo" owner="xyz"].
+  metadata: {}
   # Which port metrics service will be exposed to
   metrics:
     port: 12345
