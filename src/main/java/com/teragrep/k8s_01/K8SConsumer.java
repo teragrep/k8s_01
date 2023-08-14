@@ -62,6 +62,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private final boolean discardEnabled;
     private final String discardLabel;
     private final String apiUrl;
+    private final SDElement SDuserMetadata;
     K8SConsumer(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
@@ -75,6 +76,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
         this.timezoneId = ZoneId.of(appConfig.getKubernetes().getTimezone());
         this.discardEnabled = appConfig.getKubernetes().getLabels().getDiscard().isEnabled();
         this.discardLabel = appConfig.getKubernetes().getLabels().getDiscard().getLabel();
+        SDuserMetadata = new SDElement("user_metadata@48577");
+        appConfig.getKubernetes().getMetadata().forEach(SDuserMetadata::addSDParam);
     }
     @Override
     public void accept(FileRecord record) {
@@ -324,6 +327,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withHostname(hostname)
                     .withAppName(appName)
                     .withFacility(Facility.USER)
+                    .withSDElement(SDuserMetadata)
                     .withSDElement(SDOrigin)
                     .withSDElement(SDMetadata)
                     .withMsg(new String(record.getRecord(), StandardCharsets.UTF_8));

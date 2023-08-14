@@ -3,6 +3,7 @@
     "port": 12345
   },
   "kubernetes": {
+    "metadata": {},
     "logdir": "/var/log/containers",
     "timezone": "Europe/Helsinki",
     "cacheExpireInterval": 900,

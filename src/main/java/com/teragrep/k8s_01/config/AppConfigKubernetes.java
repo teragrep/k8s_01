@@ -22,6 +22,8 @@ import com.teragrep.k8s_01.InvalidConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+
 /* POJO representing the .kubernetes part of config.json */
 public class AppConfigKubernetes implements BaseConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppConfigKubernetes.class);
@@ -32,6 +34,8 @@ public class AppConfigKubernetes implements BaseConfig {
     private String[] logfiles;
     private String timezone;
     private Integer maxLogReadingThreads;
+
+    private HashMap<String, String> metadata;
 
     public Integer getCacheExpireInterval() {
         return cacheExpireInterval;
@@ -55,6 +59,10 @@ public class AppConfigKubernetes implements BaseConfig {
 
     public Integer getMaxLogReadingThreads() {
         return maxLogReadingThreads;
+    }
+
+    public HashMap<String, String> getMetadata() {
+        return metadata;
     }
 
     @Override
@@ -96,6 +104,10 @@ public class AppConfigKubernetes implements BaseConfig {
         }
         if(maxLogReadingThreads <= 0) {
             throw new InvalidConfigurationException("maxLogReadingThreads is invalid, expected >0");
+        }
+
+        if(metadata == null) {
+            throw new InvalidConfigurationException("metadata is null, expected it to exist, even if empty.");
         }
     }
 }
