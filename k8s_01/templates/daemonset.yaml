@@ -18,6 +18,10 @@ spec:
       serviceAccount: kubelogreader
       serviceAccountName: kubelogreader
       volumes:
+        - name: keystore
+          secret:
+            secretName: {{.Values.keystore.secretName}}
+            optional: true
         - configMap:
             name: config
           name: config
@@ -43,6 +47,8 @@ spec:
           securityContext:
             privileged: true
           volumeMounts:
+            - name: keystore
+              mountPath: /opt/teragrep/k8s_01/secret
             - name: config
               mountPath: /opt/teragrep/k8s_01/etc
             - name: statestore
