@@ -22,12 +22,19 @@ import com.codahale.metrics.*;
 import com.teragrep.k8s_01.config.AppConfigRelp;
 import com.teragrep.rlp_01.RelpBatch;
 import com.teragrep.rlp_01.RelpConnection;
+import com.teragrep.rlp_01.SSLContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
@@ -58,7 +65,36 @@ public class RelpOutput {
                     relpConfig
             );
         }
-        relpConnection = new RelpConnection();
+        if(relpConfig.getTls().getEnabled()) {
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "[#{}] Creating TLS relp output using <[{}]> keystore",
+                        getId(),
+                        relpConfig.getTls().getKeystore()
+                );
+            }
+            SSLContext sslContext;
+            try {
+                sslContext = SSLContextFactory.authenticatedContext(
+                        relpConfig.getTls().getKeystore(),
+                        relpConfig.getTls().getPassword(),
+                        "TLSv1.3"
+                );
+            } catch (GeneralSecurityException | IOException e) {
+                throw new RuntimeException(e);
+            }
+            Supplier<SSLEngine> sslEngineSupplier = sslContext::createSSLEngine;
+            relpConnection = new RelpConnection(sslEngineSupplier);
+        }
+        else {
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "[#{}] Creating plain relp output",
+                        getId()
+                );
+            }
+            relpConnection = new RelpConnection();
+        }
         relpConnection.setConnectionTimeout(relpConfig.getConnectionTimeout());
         relpConnection.setReadTimeout(relpConfig.getReadTimeout());
         relpConnection.setWriteTimeout(relpConfig.getWriteTimeout());
@@ -77,7 +113,7 @@ public class RelpOutput {
         boolean connected = false;
         while (!connected) {
             try {
-                if(LOGGER.isDebugEnabled()) {
+                if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(
                             "[#{}] Connecting to {}:{}",
                             getId(),
@@ -87,12 +123,36 @@ public class RelpOutput {
                 }
                 connected = relpConnection.connect(relpConfig.getTarget(), relpConfig.getPort());
                 totalConnections.inc();
+            } catch(ClosedChannelException e) {
+                LOGGER.error(
+                        "[#{}] Relp connection was unexpectedly closed, are you trying to talk tls to plain server: {}: {}",
+                        getId(),
+                        e.getClass().getName(),
+                        e.getMessage()
+               );
+                if(LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "[#{}] Exception source: ",
+                            getId(),
+                            e
+                    );
+                }
+                throughputErrors.mark();
+                totalConnections.dec();
             } catch (IOException | TimeoutException e) {
                 LOGGER.error(
-                        "[#{}] Can't connect to Relp server: {}",
+                        "[#{}] Can't connect to Relp server: {}: {}",
                         getId(),
+                        e.getClass().getName(),
                         e.getMessage()
                 );
+                if(LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "[#{}] Exception source: ",
+                            getId(),
+                            e
+                    );
+                }
                 throughputErrors.mark();
                 totalConnections.dec();
             }
@@ -106,7 +166,11 @@ public class RelpOutput {
                     );
                     Thread.sleep(relpConfig.getReconnectInterval());
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LOGGER.error(
+                            "[#{}] Sleep was interrupted",
+                            getId(),
+                            e
+                    );
                     throughputErrors.mark();
                 }
             }

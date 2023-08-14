@@ -55,6 +55,14 @@ config:
     target: 127.0.0.1
     # Relp target server port. Can be set dynamically with "K8S_01_RELP_PORT" environment variable
     port: 1601
+    # tls settings
+    tls:
+      # Is TLS enabled at all
+      enabled: false
+      # Absolute /path/to/keystore.jks
+      keystore: null
+      # Password for the keystore
+      password: null
     # Timeouts and intervals, in milliseconds.
     connectionTimeout: 5000
     readTimeout: 5000

@@ -2,6 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - services/relp-service.json
+  - services/relp-service-tls.json
   - services/serviceaccount.json
   - services/role.json
   - services/rolebinding.json
@@ -13,12 +14,23 @@ resources:
   - pods/ignore-me-pod.json
   - pods/dont-ignore-me-pod.json
   - pods/k8s_01.json
+  - pods/k8s_01-tls.json
   - pods/receiver.json
+  - pods/receiver-tls.json
 configMapGenerator:
   - name: app-config
     files:
       - config/k8s_01/config.json
       - config/k8s_01/log4j2.xml
+  - name: app-config-tls
+    files:
+      - config/k8s_01-tls/config.json
+      - config/k8s_01-tls/log4j2.xml
+      - config/certs/k8s_01-keystore.jks
   - name: receiver-config
     files:
       - config/rlp_07/log4j2.xml
+  - name: receiver-config-tls
+    files:
+      - config/rlp_07/log4j2.xml
+      - config/certs/rlp_07-keystore.jks

@@ -1,0 +1,102 @@
+{
+  "metadata": {
+    "name": "kubelogreader-tls",
+    "namespace": "default",
+    "labels": {
+      "app": "k8s_01-tls",
+      "host": "k8s_01-tls",
+      "env": "dev"
+    }
+  },
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "spec": {
+    "hostname": "kubelogreader-tls",
+    "serviceAccount": "kubelogreader",
+    "serviceAccountName": "kubelogreader",
+    "dnsPolicy": "ClusterFirst",
+    "terminationGracePeriodSeconds": 30,
+    "volumes": [
+      {
+        "name": "app-config-tls",
+        "configMap": {
+          "name": "app-config-tls"
+        }
+      },
+      {
+        "name": "host-var-log-containers",
+        "hostPath": {
+          "path": "/var/log/containers",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "host-var-log-pods",
+        "hostPath": {
+          "path": "/var/log/pods",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "host-var-lib-docker-containers",
+        "hostPath": {
+          "path": "/var/lib/docker/containers",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "host-mnt-statefiles-tls",
+        "hostPath": {
+          "path": "/mnt/statefiles-tls",
+          "type": "DirectoryOrCreate"
+        }
+      }
+    ],
+    "containers": [
+      {
+        "image": "ghcr.io/teragrep/k8s_01:latest",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "kubelogreader-tls",
+        "volumeMounts": [
+          {
+            "mountPath": "/opt/teragrep/k8s_01/etc",
+            "name": "app-config-tls"
+          },
+          {
+            "mountPath": "/var/log/containers",
+            "name": "host-var-log-containers",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/var/log/pods",
+            "name": "host-var-log-pods",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/var/lib/docker/containers",
+            "name": "host-var-lib-docker-containers",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/opt/teragrep/k8s_01/var",
+            "name": "host-mnt-statefiles-tls",
+            "readOnly": false
+          }
+        ],
+        "command": [
+          "/usr/bin/bash"
+        ],
+        "args": [
+          "-c",
+          "export K8S_01_RELP_TARGET=\"${RELP_SERVICE_TLS_SERVICE_HOST}\"; export K8S_01_RELP_PORT=\"${RELP_SERVICE_TLS_SERVICE_PORT}\"; cd /opt/teragrep/k8s_01 || exit 1; exec /usr/bin/java -Dlog4j2.configurationFile=file:etc/log4j2.xml -jar lib/k8s_01.jar;"
+        ]
+      }
+    ],
+    "imagePullSecrets": [
+      {
+        "name": "ghcr.io"
+      }
+    ],
+    "restartPolicy": "Always"
+  }
+}
