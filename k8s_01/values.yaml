@@ -77,9 +77,6 @@ config:
 logging:
   level: INFO
 
-# Which namespace it will be installed to.
-namespace: teragrep
-
 # Keystore related
 keystore:
   # Which secret is passed to the container
