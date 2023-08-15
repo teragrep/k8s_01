@@ -81,3 +81,8 @@ logging:
 keystore:
   # Which secret is passed to the container
   secretName: keystore
+
+# Statestore related
+statestore:
+  # Where statestore is mounted on the host
+  hostMountPath: /mnt/statestore
