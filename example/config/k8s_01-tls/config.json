@@ -22,9 +22,9 @@
         "labelStdout": "app",
         "labelStderr":  "app-stderr"
       },
-      "discard": {
+      "whitelist": {
         "enabled": true,
-        "label": "discard"
+        "label": "collect"
       }
     },
     "logfiles": [

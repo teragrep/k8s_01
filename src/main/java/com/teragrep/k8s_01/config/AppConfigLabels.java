@@ -24,7 +24,7 @@ import com.teragrep.k8s_01.InvalidConfigurationException;
 public class AppConfigLabels implements BaseConfig {
     private AppConfigLabel hostname;
     private AppConfigLabel appname; // Lowercase instead of appName because it comes from json and needs to be case-sensitive
-    private AppConfigDiscardLabel discard;
+    private AppConfigWhitelistLabel whitelist;
 
     public AppConfigLabel getHostname() {
         return hostname;
@@ -33,8 +33,8 @@ public class AppConfigLabels implements BaseConfig {
     public AppConfigLabel getAppName() {
         return appname;
     }
-    public AppConfigDiscardLabel getDiscard() {
-        return discard;
+    public AppConfigWhitelistLabel getWhitelist() {
+        return whitelist;
     }
 
     @Override
@@ -54,9 +54,9 @@ public class AppConfigLabels implements BaseConfig {
         }
         appname.validate();
 
-        if(discard == null) {
-            throw new InvalidConfigurationException("discard not found or is null in labels config object");
+        if(whitelist == null) {
+            throw new InvalidConfigurationException("whitelist not found or is null in labels config object");
         }
-        discard.validate();
+        whitelist.validate();
     }
 }

@@ -5,7 +5,7 @@
     "labels": {
       "host": "dont-ignore-me-host",
       "app": "dont-ignore-me-app",
-      "discard": "false"
+      "collect": "true"
     }
   },
   "kind": "Pod",

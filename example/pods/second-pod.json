@@ -4,7 +4,8 @@
     "namespace": "default",
     "labels": {
       "host": "second-pod-hostname",
-      "env": "dev"
+      "env": "dev",
+      "collect": "true"
     }
   },
   "kind": "Pod",

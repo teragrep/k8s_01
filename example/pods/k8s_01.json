@@ -5,7 +5,8 @@
     "labels": {
       "app": "k8s_01",
       "host": "k8s_01",
-      "env": "dev"
+      "env": "dev",
+      "collect": "true"
     }
   },
   "kind": "Pod",

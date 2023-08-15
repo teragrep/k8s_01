@@ -59,8 +59,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
     // Validators
     private static final Pattern hostnamePattern = Pattern.compile("^[a-zA-Z0-9.-]+$"); // Not perfect but filters basically all mistakes
     private static final Pattern appNamePattern = Pattern.compile("^[\\x21-\\x7e]+$"); // DEC 33 - DEC 126 as specified in RFC5424
-    private final boolean discardEnabled;
-    private final String discardLabel;
+    private final boolean whitelistEnabled;
+    private final String whitelistLabel;
     private final String apiUrl;
     private final SDElement sdAdditionalMetadata;
     K8SConsumer(
@@ -74,8 +74,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
         this.relpOutputPool = relpOutputPool;
         this.apiUrl = apiUrl;
         this.timezoneId = ZoneId.of(appConfig.getKubernetes().getTimezone());
-        this.discardEnabled = appConfig.getKubernetes().getLabels().getDiscard().isEnabled();
-        this.discardLabel = appConfig.getKubernetes().getLabels().getDiscard().getLabel();
+        this.whitelistEnabled = appConfig.getKubernetes().getLabels().getWhitelist().isEnabled();
+        this.whitelistLabel = appConfig.getKubernetes().getLabels().getWhitelist().getLabel();
         sdAdditionalMetadata = new SDElement("additional_metadata@48577");
         appConfig.getKubernetes().getMetadata().forEach(sdAdditionalMetadata::addSDParam);
     }
@@ -193,11 +193,13 @@ public class K8SConsumer implements Consumer<FileRecord> {
 
             NamespaceMetadataContainer namespaceMetadataContainer = cacheClient.getNamespace(namespace);
             PodMetadataContainer podMetadataContainer = cacheClient.getPod(namespace, podname);
-            if(discardEnabled) {
+            if(whitelistEnabled) {
                 if(
                         podMetadataContainer.getLabels() != null
-                        && podMetadataContainer.getLabels().containsKey(discardLabel)
-                        && podMetadataContainer.getLabels().get(discardLabel).equalsIgnoreCase("true")
+                        && (
+                               !podMetadataContainer.getLabels().containsKey(whitelistLabel)
+                               || !podMetadataContainer.getLabels().get(whitelistLabel).equalsIgnoreCase("true")
+                        )
                 ) {
                     LOGGER.debug(
                             "[{}] Discarding event from pod <{}/{}> on container <{}>",

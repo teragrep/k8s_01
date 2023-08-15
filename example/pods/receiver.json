@@ -4,7 +4,8 @@
     "namespace": "default",
     "labels": {
       "app": "receiver",
-      "env": "dev"
+      "env": "dev",
+      "collect": "true"
     }
   },
   "kind": "Pod",
