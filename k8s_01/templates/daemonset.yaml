@@ -27,7 +27,7 @@ spec:
           name: config
         - hostPath:
             path: {{.Values.statestore.hostMountPath}}
-            type: Directory
+            type: DirectoryOrCreate
           name: statestore
         - hostPath:
             path: /var/log/containers
