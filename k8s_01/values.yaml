@@ -77,10 +77,12 @@ config:
 logging:
   level: INFO
 
-# Which namespace it will be installed to.
-namespace: teragrep
-
 # Keystore related
 keystore:
   # Which secret is passed to the container
   secretName: keystore
+
+# Statestore related
+statestore:
+  # Where statestore is mounted on the host
+  hostMountPath: /srv/k8s_01/statestore
