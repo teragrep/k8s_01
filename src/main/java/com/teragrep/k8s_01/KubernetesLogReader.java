@@ -94,10 +94,10 @@ public class KubernetesLogReader {
         }
         String apiUrl = String.format("https://%s:%s", apiAddress, apiPort);
 
-        if(appConfig.getKubernetes().getLabels().getDiscard().isEnabled()) {
+        if(appConfig.getKubernetes().getLabels().getWhitelist().isEnabled()) {
             LOGGER.warn(
-                    "WARNING: Event discarding is enabled. This will lose any data from pods that has label <[{}]> that is equal to \"true\".",
-                    appConfig.getKubernetes().getLabels().getDiscard().getLabel()
+                    "WARNING: Event whitelisting is enabled. This will collect data only from pods that has label <[{}]> that is equal to \"true\".",
+                    appConfig.getKubernetes().getLabels().getWhitelist().getLabel()
             );
         }
         KubernetesCachingAPIClient cacheClient = new KubernetesCachingAPIClient(appConfig.getKubernetes(), apiUrl);

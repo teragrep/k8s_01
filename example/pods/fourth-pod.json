@@ -5,7 +5,8 @@
     "labels": {
       "host": "fourth-pod-hostname",
       "app": "fourth-pod-app",
-      "env": "dev"
+      "env": "dev",
+      "collect": "true"
     }
   },
   "kind": "Pod",

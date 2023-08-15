@@ -15,6 +15,9 @@
         <Logger name="com.teragrep.k8s_01.RelpOutput" level="INFO" additivity="false">
             <AppenderRef ref="STDOUT" />
         </Logger>
+        <Logger name="com.teragrep.k8s_01.K8SConsumer" level="INFO" additivity="false">
+            <AppenderRef ref="STDOUT" />
+        </Logger>
         <Logger name="com.teragrep.rlo_12" level="INFO" additivity="false">
             <AppenderRef ref="STDOUT" />
         </Logger>

@@ -6,7 +6,8 @@
       "host": "third-pod-hostname",
       "host-stderr": "third-pod-hostname-stderr",
       "app": "third-pod-app",
-      "env": "dev"
+      "env": "dev",
+      "collect": "true"
     }
   },
   "kind": "Pod",

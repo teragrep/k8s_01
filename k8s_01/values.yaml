@@ -39,11 +39,11 @@ config:
         labelStdout: app
         # Which label to search for when looking for appname for stderr streams. Uses labelStdout if set to null.
         labelStderr: app-stderr
-      discard:
-        # Enable discarding of events when label exists and value is equal to "true", case insensitive
-        enabled: false
+      whitelist:
+        # Enable whitelisting of events to be collected when label exists and value is equal to "true", case insensitive
+        enabled: true
         # Label to search for
-        label: if-found-discard-my-logs
+        label: collect-if-label-found
     # Regex for logfiles that are read. Uses {logdir}/{logfiles}
     logfiles:
       - example-pod_default_.*

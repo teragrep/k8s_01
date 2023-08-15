@@ -19,7 +19,7 @@ package com.teragrep.k8s_01.config;
 
 import com.teragrep.k8s_01.InvalidConfigurationException;
 
-public class AppConfigDiscardLabel implements BaseConfig {
+public class AppConfigWhitelistLabel implements BaseConfig {
     private Boolean enabled;
 
 
