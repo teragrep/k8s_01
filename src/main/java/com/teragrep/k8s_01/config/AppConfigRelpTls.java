@@ -71,13 +71,20 @@ public class AppConfigRelpTls implements BaseConfig {
         try(InputStream is = Files.newInputStream(new File(keystore).toPath())) {
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(is, password.toCharArray());
-        } catch (IOException e) {
+        } catch (FileNotFoundException e) {
             LOGGER.error(
                     "keystore <[{}]> not found: ",
                     keystore,
                     e
             );
             throw new InvalidConfigurationException(e);
+        } catch (IOException e) {
+            LOGGER.error(
+                    "Encountered an IOException with <[{}]>: ",
+                    keystore,
+                    e
+            );
+            throw new UncheckedIOException(e);
         }
         catch (KeyStoreException e) {
             LOGGER.error(
