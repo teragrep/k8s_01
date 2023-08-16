@@ -91,7 +91,7 @@ public class AppConfigRelpTls implements BaseConfig {
                     "keystore can't be instantiated: ",
                     e
             );
-            throw new InvalidConfigurationException(e);
+            throw new RuntimeException(e);
         }
         catch (NoSuchAlgorithmException | CertificateException e) {
             LOGGER.error(
