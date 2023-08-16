@@ -19,14 +19,18 @@ package com.teragrep.k8s_01.config;
 
 import com.google.gson.Gson;
 import com.teragrep.k8s_01.InvalidConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 public class AppConfigRelpTls implements BaseConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppConfigRelpTls.class);
     private Boolean enabled;
     private String keystore;
     private String password;
@@ -63,41 +67,32 @@ public class AppConfigRelpTls implements BaseConfig {
             throw new InvalidConfigurationException("keystore not found or is null in relp tls config object");
         }
 
-        // Try reading the file
-        File keystorePath = new File(keystore);
-        InputStream is;
-        try {
-            is = new FileInputStream(keystorePath);
-        } catch (FileNotFoundException e) {
-            throw new InvalidConfigurationException(
-                    String.format(
-                            "keystore <[%s]> not found",
-                             keystore
-                    ),
-                    e
-            );
-        }
-        // Try creating a keystore
-        KeyStore ks;
-        try {
-            ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        } catch (KeyStoreException e) {
-            throw new InvalidConfigurationException(
-                    "keystore can't be instantiated",
-                    e
-            );
-        }
-        // Try loading the keystore with provided password
-        try {
+        // Try to read and load the keystore
+        try(InputStream is = Files.newInputStream(new File(keystore).toPath())) {
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(is, password.toCharArray());
-        } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-            throw new InvalidConfigurationException(
-                    String.format(
-                            "keystore <[%s]> can't be parsed",
-                            keystore
-                    ),
+        } catch (IOException e) {
+            LOGGER.error(
+                    "keystore <[{}]> not found: ",
+                    keystore,
                     e
             );
+            throw new InvalidConfigurationException(e);
+        }
+        catch (KeyStoreException e) {
+            LOGGER.error(
+                    "keystore can't be instantiated: ",
+                    e
+            );
+            throw new InvalidConfigurationException(e);
+        }
+        catch (NoSuchAlgorithmException | CertificateException e) {
+            LOGGER.error(
+                    "keystore <[{}]> can't be opened: ",
+                    keystore,
+                    e
+            );
+            throw new InvalidConfigurationException(e);
         }
     }
 }
