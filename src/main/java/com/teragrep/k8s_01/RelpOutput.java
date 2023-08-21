@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -81,6 +80,11 @@ public class RelpOutput {
                         "TLSv1.3"
                 );
             } catch (GeneralSecurityException | IOException e) {
+                LOGGER.error(
+                        "[#{}] Failed to construct sslContext: ",
+                        getId(),
+                        e
+                );
                 throw new RuntimeException(e);
             }
             Supplier<SSLEngine> sslEngineSupplier = sslContext::createSSLEngine;
