@@ -63,7 +63,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private final SDElement sdAdditionalMetadata;
     private final SDParam sdRealHostname;
     private final SDParam sdSourceModule = new SDParam("source_module", "k8s_01");
-    private final SDParam sdSource = new SDParam("source", "source");
+    private final SDParam sdIdSource = new SDParam("id_source", "source");
     K8SConsumer(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
@@ -325,7 +325,7 @@ public class K8SConsumer implements Consumer<FileRecord> {
             sdEventId.addSDParam(sdRealHostname);
             sdEventId.addSDParam("uuid", uuid.toString());
             sdEventId.addSDParam("unixtime", String.valueOf(Instant.now().getEpochSecond()));
-            sdEventId.addSDParam(sdSource);
+            sdEventId.addSDParam(sdIdSource);
 
             LOGGER.trace(
                     "[{}] Kubernetes metadata: {}",
