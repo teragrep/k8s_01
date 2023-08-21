@@ -17,10 +17,7 @@
 
 package com.teragrep.k8s_01;
 
-import com.teragrep.rlo_14.Facility;
-import com.teragrep.rlo_14.SDElement;
-import com.teragrep.rlo_14.Severity;
-import com.teragrep.rlo_14.SyslogMessage;
+import com.teragrep.rlo_14.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -32,6 +29,7 @@ import com.teragrep.rlo_13.FileRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -63,6 +61,9 @@ public class K8SConsumer implements Consumer<FileRecord> {
     private final String whitelistLabel;
     private final String apiUrl;
     private final SDElement sdAdditionalMetadata;
+    private final SDParam sdRealHostname;
+    private final SDParam sdSourceModule = new SDParam("source_module", "k8s_01");
+    private final SDParam sdSource = new SDParam("source", "source");
     K8SConsumer(
             AppConfig appConfig,
             KubernetesCachingAPIClient cacheClient,
@@ -77,6 +78,11 @@ public class K8SConsumer implements Consumer<FileRecord> {
         this.whitelistEnabled = appConfig.getKubernetes().getLabels().getWhitelist().isEnabled();
         this.whitelistLabel = appConfig.getKubernetes().getLabels().getWhitelist().getLabel();
         sdAdditionalMetadata = new SDElement("additional_metadata@48577");
+        try {
+            sdRealHostname = new SDParam("hostname", java.net.InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
         appConfig.getKubernetes().getMetadata().forEach(sdAdditionalMetadata::addSDParam);
     }
     @Override
@@ -85,10 +91,9 @@ public class K8SConsumer implements Consumer<FileRecord> {
             UUID uuid = java.util.UUID.randomUUID();
             if(LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
-                        "[{}] Got a new record from file: {}/{}",
+                        "[{}] Got a new record from file: {}",
                         uuid,
-                        record.getPath(),
-                        record.getFilename()
+                        record.getPath()
                 );
                 LOGGER.debug(
                         "[{}] Reading {} starting from {}, file progress {}/{}",
@@ -114,13 +119,12 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 );
                 throw new RuntimeException(
                         String.format(
-                                "[%s] Event from pod <%s>/<%s> on container <%s> in file <%s/%s> offset <%s> can't be parsed properly: %s",
+                                "[%s] Event from pod <%s>/<%s> on container <%s> in file <%s> offset <%s> can't be parsed properly: %s",
                                 uuid,
                                 namespace,
                                 podname,
                                 containerId,
                                 record.getPath(),
-                                record.getFilename(),
                                 record.getStartOffset(),
                                 e.getMessage()
                         )
@@ -136,13 +140,12 @@ public class K8SConsumer implements Consumer<FileRecord> {
                 );
                 throw new RuntimeException(
                     String.format(
-                        "[%s] Didn't find expected values for event from pod <%s/%s> on container <%s> in file %s/%s at offset %s",
+                        "[%s] Didn't find expected values for event from pod <%s> on container <%s> in file %s/%s at offset %s",
                         uuid,
                         namespace,
                         podname,
                         containerId,
                         record.getPath(),
-                        record.getFilename(),
                         record.getStartOffset()
                     )
                 );
@@ -154,14 +157,13 @@ public class K8SConsumer implements Consumer<FileRecord> {
             catch(DateTimeParseException e) {
                 throw new RuntimeException(
                         String.format(
-                                "[%s] Can't parse timestamp <%s> properly for event from pod <[%s]/[%s]> on container <%s> in file %s/%s at offset %s: ",
+                                "[%s] Can't parse timestamp <%s> properly for event from pod <[%s]> on container <%s> in file %s/%s at offset %s: ",
                                 uuid,
                                 log.getTimestamp(),
                                 namespace,
                                 podname,
                                 containerId,
                                 record.getPath(),
-                                record.getFilename(),
                                 record.getStartOffset()
                         ),
                         e
@@ -170,14 +172,13 @@ public class K8SConsumer implements Consumer<FileRecord> {
             if(instant == null) {
                 throw new RuntimeException(
                         String.format(
-                                "[%s] Unknown failure while parsing timestamp <%s> for event from pod <[%s]/[%s]> on container <%s> in file %s/%s at offset %s",
+                                "[%s] Unknown failure while parsing timestamp <%s> for event from pod <[%s]> on container <%s> in file %s/%s at offset %s",
                                 uuid,
                                 log.getTimestamp(),
                                 namespace,
                                 podname,
                                 containerId,
                                 record.getPath(),
-                                record.getFilename(),
                                 record.getStartOffset()
                         )
                 );
@@ -307,12 +308,25 @@ public class K8SConsumer implements Consumer<FileRecord> {
             }
 
             // Craft syslog message and structured-data
-            SDElement sdOrigin = new SDElement("origin@48577")
-                    .addSDParam("hostname", podMetadataContainer.getHost() + "/" + containerId);
-            SDElement sdMetadata = new SDElement("kubernetesmeta@48577")
-                    .addSDParam("kubernetes", kubernetesMetadata.toString())
-                    .addSDParam("docker", dockerMetadata.toString())
-                    .addSDParam("stream", log.getStream());
+            final SDElement sdOrigin = new SDElement("origin@48577");
+            sdOrigin.addSDParam("hostname", podMetadataContainer.getHost() + "/" + containerId);
+
+            final SDElement sdMetadata = new SDElement("kubernetesmeta@48577");
+            sdMetadata.addSDParam("kubernetes", kubernetesMetadata.toString());
+            sdMetadata.addSDParam("docker", dockerMetadata.toString());
+            sdMetadata.addSDParam("stream", log.getStream());
+
+            final SDElement sdEventNodeSource = new SDElement("event_node_source@48577");
+            sdEventNodeSource.addSDParam(sdRealHostname);
+            sdEventNodeSource.addSDParam("source", record.getPath());
+            sdEventNodeSource.addSDParam(sdSourceModule);
+
+            final SDElement sdEventId = new SDElement("event_id@48577");
+            sdEventId.addSDParam(sdRealHostname);
+            sdEventId.addSDParam("uuid", uuid.toString());
+            sdEventId.addSDParam("unixtime", String.valueOf(Instant.now().getEpochSecond()));
+            sdEventId.addSDParam(sdSource);
+
             LOGGER.trace(
                     "[{}] Kubernetes metadata: {}",
                     uuid,
@@ -331,6 +345,8 @@ public class K8SConsumer implements Consumer<FileRecord> {
                     .withFacility(Facility.USER)
                     .withSDElement(sdAdditionalMetadata)
                     .withSDElement(sdOrigin)
+                    .withSDElement(sdEventNodeSource)
+                    .withSDElement(sdEventId)
                     .withSDElement(sdMetadata)
                     .withMsg(log.getLog());
             try {
